@@ -10,7 +10,7 @@ import { MsalService } from '@azure/msal-angular';
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'Primeng17_FrontEnd_Template';
+  title = 'SMLP-08-2025-FrontEnd';
 
   constructor(private msalService: MsalService) {}
 

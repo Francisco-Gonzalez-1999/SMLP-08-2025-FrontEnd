@@ -14,16 +14,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'Primeng17_FrontEnd_Template' title`, () => {
+  it(`should have the 'SMLP-08-2025-FrontEnd' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Primeng17_FrontEnd_Template');
+    expect(app.title).toEqual('SMLP-08-2025-FrontEnd');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, Primeng17_FrontEnd_Template');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, SMLP-08-2025-FrontEnd');
   });
 });

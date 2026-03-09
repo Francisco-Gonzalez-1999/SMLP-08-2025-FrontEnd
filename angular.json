@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Primeng17_FrontEnd_Template": {
+    "SMLP-08-2025-FrontEnd": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/primeng17-front-end-template",
+            "outputPath": "dist/smlp-08-2025-front-end",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -81,10 +81,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "Primeng17_FrontEnd_Template:build:production"
+              "buildTarget": "SMLP-08-2025-FrontEnd:build:production"
             },
             "development": {
-              "buildTarget": "Primeng17_FrontEnd_Template:build:development"
+              "buildTarget": "SMLP-08-2025-FrontEnd:build:development"
             }
           },
           "defaultConfiguration": "development"
