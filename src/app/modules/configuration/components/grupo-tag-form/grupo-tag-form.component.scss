@@ -1,0 +1,39 @@
+:host ::ng-deep {
+  .p-inputtext,
+  .p-inputtextarea,
+  .p-dropdown {
+    width: 100%;
+  }
+
+  .p-inputtextarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+}
+
+.text-red-500 {
+  color: #ef4444;
+}
+
+.descripcion-textarea {
+  min-height: 80px !important;
+  resize: vertical;
+}
+
+form {
+  .field {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+      font-size: 0.875rem;
+    }
+  }
+
+  .formgrid {
+    padding: 0.5rem 0;
+  }
+}

@@ -5,7 +5,13 @@ import { isLoggedIn, isNotLoggedIn } from './shared/guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    component: LayoutComponent
+    component: LayoutComponent,
+    children: [
+      {
+        path: 'configuration',
+        loadChildren: () => import('./modules/configuration/configuration.routing').then(m => m.configurationRoutes)
+      }
+    ]
   },
   {
     path: 'auth',

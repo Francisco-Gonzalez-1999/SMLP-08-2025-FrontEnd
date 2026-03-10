@@ -1,0 +1,227 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="plantas-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-building"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Administración de Plantas</h2>
+        <p class="m-0 mt-1">Gestiona las plantas del sistema</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="plantas.length > 0">
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarPlantas()"
+        styleClass="p-button-sm">
+      </p-button>
+      <p-button
+        icon="pi pi-plus"
+        label="Nueva Planta"
+        [text]="true"
+        severity="success"
+        (click)="abrirDialogCrear()"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  @if (plantas.length > 0) {
+    <div class="table-section">
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Plantas</h3>
+            <span class="section-subtitle">{{ plantas.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="plantas"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['nombre', 'descripcion']"
+        styleClass="p-datatable-sm"
+        [scrollable]="true"
+        scrollHeight="58vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idPlanta" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idPlanta"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre" style="min-width: 200px">
+              Nombre
+              <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="descripcion" style="min-width: 250px">
+              Descripción
+              <p-sortIcon field="descripcion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="estaActivo" style="min-width: 110px; width: 110px">
+              Estado
+              <p-sortIcon field="estaActivo"></p-sortIcon>
+              <p-columnFilter
+                type="boolean"
+                field="estaActivo"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="fechaCreacion" style="min-width: 140px">
+              Fecha Creación
+              <p-sortIcon field="fechaCreacion"></p-sortIcon>
+            </th>
+            <th style="width: 150px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-planta>
+          <tr>
+            <td>
+              <span class="id-chip">#{{ planta.idPlanta }}</span>
+            </td>
+            <td>
+              <span class="nombre-text">{{ planta.nombre }}</span>
+            </td>
+            <td>
+              <span class="descripcion-text">{{ planta.descripcion || '-' }}</span>
+            </td>
+            <td class="text-center">
+              <p-tag
+                [value]="getEstadoTexto(planta.estaActivo)"
+                [severity]="getSeverity(planta.estaActivo)"
+                styleClass="estatus-tag">
+              </p-tag>
+            </td>
+            <td class="text-center">
+              <span class="fecha-text">{{ planta.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+            </td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-primary"
+                  (click)="abrirDialogEditar(planta)"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
+                <p-toggleButton
+                  [(ngModel)]="planta.estaActivo"
+                  [onLabel]="'Activo'"
+                  [offLabel]="'Inactivo'"
+                  (onChange)="cambiarEstado(planta)"
+                  [disabled]="processing"
+                  styleClass="w-9rem">
+                </p-toggleButton>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (plantas.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-building"></i>
+        </div>
+        <h3>No se encontraron Plantas</h3>
+        <p>Actualmente no hay plantas registradas en el sistema.</p>
+        <p-button
+          icon="pi pi-plus"
+          label="Crear Planta"
+          [outlined]="true"
+          (click)="abrirDialogCrear()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner
+        ariaLabel="loading"
+        [style]="{ width: '50px', height: '50px' }"
+        strokeWidth="4">
+      </p-progressSpinner>
+      <span class="loading-text">Cargando Plantas...</span>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog para crear/editar -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  [style]="{width: '50rem', maxWidth: '90vw'}"
+  [header]="isEditMode ? 'Editar Planta' : 'Nueva Planta'"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialog()">
+  <app-planta-form
+    [planta]="selectedPlanta"
+    [isEditMode]="isEditMode"
+    (guardado)="onPlantaGuardada()"
+    (cancelado)="cerrarDialog()">
+  </app-planta-form>
+</p-dialog>
+
+<!-- Overlay Spinner para operaciones -->
+@if (processing) {
+  <div class="overlay-spinner">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+}

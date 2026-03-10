@@ -1,0 +1,115 @@
+<form (ngSubmit)="guardar()" class="config-form">
+  <div class="formgrid grid">
+    <div class="field col-12 md:col-6">
+      <label for="idServidorModbus">ID Servidor Modbus</label>
+      <p-inputNumber 
+        id="idServidorModbus" 
+        [(ngModel)]="formData.idServidorModbus" 
+        name="idServidorModbus"
+        [min]="1"
+        [disabled]="loading"
+        placeholder="ID del servidor"
+        [showButtons]="false"
+        styleClass="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="fase">Fase</label>
+      <input 
+        id="fase" 
+        type="text" 
+        pInputText 
+        [(ngModel)]="formData.fase" 
+        name="fase"
+        [disabled]="loading"
+        placeholder="Ej: A, B, C" />
+    </div>
+
+    <div class="field col-12">
+      <label for="nombre">Nombre <span class="text-red-500">*</span></label>
+      <input 
+        id="nombre" 
+        type="text" 
+        pInputText 
+        [(ngModel)]="formData.nombre" 
+        name="nombre"
+        required
+        [disabled]="loading"
+        placeholder="Ingrese el nombre del esclavo Modbus" />
+    </div>
+
+    <div class="field col-12">
+      <label for="descripcion">Descripción</label>
+      <textarea 
+        id="descripcion" 
+        pInputTextarea 
+        [(ngModel)]="formData.descripcion" 
+        name="descripcion"
+        [rows]="3"
+        [disabled]="loading"
+        placeholder="Ingrese una descripción (opcional)" 
+        [autoResize]="false"
+        class="descripcion-textarea"></textarea>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="registroInicio">Registro Inicio <span class="text-red-500">*</span></label>
+      <p-inputNumber 
+        id="registroInicio" 
+        [(ngModel)]="formData.registroInicio" 
+        name="registroInicio"
+        [min]="0"
+        [disabled]="loading"
+        placeholder="Ej: 0"
+        [showButtons]="false"
+        styleClass="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field col-12 md:col-6">
+      <label for="registroFin">Registro Fin <span class="text-red-500">*</span></label>
+      <p-inputNumber 
+        id="registroFin" 
+        [(ngModel)]="formData.registroFin" 
+        name="registroFin"
+        [min]="1"
+        [disabled]="loading"
+        placeholder="Ej: 100"
+        [showButtons]="false"
+        styleClass="w-full"></p-inputNumber>
+    </div>
+
+    <div class="field col-12" *ngIf="isEditMode">
+      <label for="estaActivo">Estado</label>
+      <div class="flex align-items-center gap-2">
+        <p-inputSwitch 
+          [(ngModel)]="formData.estaActivo" 
+          name="estaActivo"
+          [disabled]="loading"></p-inputSwitch>
+        <span>{{ formData.estaActivo ? 'Activo' : 'Inactivo' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end gap-2 mt-4">
+    <button 
+      pButton 
+      pRipple 
+      type="button"
+      label="Cancelar" 
+      icon="pi pi-times" 
+      class="p-button-text"
+      (click)="cancelar()"
+      [disabled]="loading"></button>
+    <button 
+      pButton 
+      pRipple 
+      type="submit"
+      [label]="isEditMode ? 'Actualizar' : 'Crear'" 
+      [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+      [class]="isEditMode ? 'p-button-warning' : 'p-button-success'"
+      [disabled]="loading"
+      [loading]="loading"></button>
+  </div>
+</form>
+
+<p-toast></p-toast>

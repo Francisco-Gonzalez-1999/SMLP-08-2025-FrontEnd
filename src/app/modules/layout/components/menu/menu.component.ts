@@ -23,17 +23,20 @@ export class MenuComponent implements OnInit {
   ngOnInit() {
     this.model = [
         {
-          label: 'Menu1',
+          label: 'Configuración',
+          icon: 'pi pi-fw pi-cog',
           items: [
-            { label: 'Sub-menu1', icon: 'pi pi-fw pi-calculator', routerLink: ['/'] }
+            { label: 'PLCs', icon: 'pi pi-fw pi-server', routerLink: ['/configuration/plcs'] },
+            { label: 'Plantas', icon: 'pi pi-fw pi-building', routerLink: ['/configuration/plantas'] },
+            { label: 'Líneas', icon: 'pi pi-fw pi-sitemap', routerLink: ['/configuration/lineas'] },
+            { label: 'Esclavos Modbus', icon: 'pi pi-fw pi-microchip', routerLink: ['/configuration/esclavos-modbus'] },
+            { label: 'Servidores Modbus', icon: 'pi pi-fw pi-microchip', routerLink: ['/configuration/servidores-modbus'] },
+            { label: 'Servidores OPC UA', icon: 'pi pi-fw pi-cloud', routerLink: ['/configuration/servidores-opcua'] },
+            { label: 'Grupos de Tags', icon: 'pi pi-fw pi-tags', routerLink: ['/configuration/grupos-tags'] },
+            { label: 'Tags', icon: 'pi pi-fw pi-tag', routerLink: ['/configuration/tags'] },
+            { label: 'Tags-Grupos', icon: 'pi pi-fw pi-link', routerLink: ['/configuration/tags-grupos'] }
           ]
-        },
-        {
-          label: 'Menu2',
-          items: [
-            { label: 'Sub-menu2', icon: 'pi pi-fw pi-file-edit', routerLink: ['/m1']  },
-          ]
-        },
+        }
 
 
     ];

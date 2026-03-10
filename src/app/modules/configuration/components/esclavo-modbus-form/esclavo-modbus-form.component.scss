@@ -1,0 +1,17 @@
+:host ::ng-deep {
+  .p-inputtext,
+  .p-inputtextarea,
+  .p-inputnumber {
+    width: 100%;
+  }
+
+  .p-inputtextarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+}
+
+.descripcion-textarea {
+  min-height: 80px !important;
+  resize: vertical;
+}

@@ -1,0 +1,243 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="tags-grupos-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-link"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Administración de Tags-Grupos</h2>
+        <p class="m-0 mt-1">Gestiona las relaciones entre tags y grupos de tags</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="tagsGrupos.length > 0">
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarTagsGrupos()"
+        styleClass="p-button-sm">
+      </p-button>
+      <p-button
+        icon="pi pi-plus"
+        label="Nueva Relación"
+        [text]="true"
+        severity="success"
+        (click)="abrirDialogCrear()"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  @if (tagsGrupos.length > 0) {
+    <div class="table-section">
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Tags-Grupos</h3>
+            <span class="section-subtitle">{{ tagsGrupos.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="tagsGrupos"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['tagNombre', 'tagNodeId', 'grupoTagNombre']"
+        styleClass="p-datatable-sm"
+        [scrollable]="true"
+        scrollHeight="58vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idTagGrupo" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idTagGrupo"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tagNombre" style="min-width: 200px">
+              Tag
+              <p-sortIcon field="tagNombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tagNodeId" style="min-width: 150px">
+              NodeId
+              <p-sortIcon field="tagNodeId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tagTipoDato" style="min-width: 120px">
+              Tipo Dato
+              <p-sortIcon field="tagTipoDato"></p-sortIcon>
+            </th>
+            <th pSortableColumn="grupoTagNombre" style="min-width: 200px">
+              Grupo de Tags
+              <p-sortIcon field="grupoTagNombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="estaActivo" style="min-width: 110px; width: 110px">
+              Estado
+              <p-sortIcon field="estaActivo"></p-sortIcon>
+              <p-columnFilter
+                type="boolean"
+                field="estaActivo"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="fechaCreacion" style="min-width: 140px">
+              Fecha Creación
+              <p-sortIcon field="fechaCreacion"></p-sortIcon>
+            </th>
+            <th style="width: 150px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-tagGrupo>
+          <tr>
+            <td>
+              <span class="id-chip">#{{ tagGrupo.idTagGrupo }}</span>
+            </td>
+            <td>
+              <span class="nombre-text">{{ tagGrupo.tagNombre || '-' }}</span>
+            </td>
+            <td>
+              <span class="ip-text">{{ tagGrupo.tagNodeId || '-' }}</span>
+            </td>
+            <td>
+              <span class="tipo-text">{{ tagGrupo.tagTipoDato || '-' }}</span>
+            </td>
+            <td>
+              <span class="nombre-text">{{ tagGrupo.grupoTagNombre || '-' }}</span>
+            </td>
+            <td class="text-center">
+              <p-tag
+                [value]="getEstadoTexto(tagGrupo.estaActivo)"
+                [severity]="getSeverity(tagGrupo.estaActivo)"
+                styleClass="estatus-tag">
+              </p-tag>
+            </td>
+            <td class="text-center">
+              <span class="fecha-text">{{ tagGrupo.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+            </td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-primary"
+                  (click)="abrirDialogEditar(tagGrupo)"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
+                <p-toggleButton
+                  [(ngModel)]="tagGrupo.estaActivo"
+                  [onLabel]="'Activo'"
+                  [offLabel]="'Inactivo'"
+                  (onChange)="cambiarEstado(tagGrupo)"
+                  [disabled]="processing"
+                  styleClass="w-9rem">
+                </p-toggleButton>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (tagsGrupos.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-link"></i>
+        </div>
+        <h3>No se encontraron Tags-Grupos</h3>
+        <p>Actualmente no hay relaciones entre tags y grupos registradas en el sistema.</p>
+        <p-button
+          icon="pi pi-plus"
+          label="Crear Relación"
+          [outlined]="true"
+          (click)="abrirDialogCrear()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner
+        ariaLabel="loading"
+        [style]="{ width: '50px', height: '50px' }"
+        strokeWidth="4">
+      </p-progressSpinner>
+      <span class="loading-text">Cargando Tags-Grupos...</span>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog para crear/editar -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  [style]="{width: '50rem', maxWidth: '90vw'}"
+  [header]="isEditMode ? 'Editar Tag-Grupo' : 'Nuevo Tag-Grupo'"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialog()">
+  <app-tag-grupo-form
+    [tagGrupo]="selectedTagGrupo"
+    [isEditMode]="isEditMode"
+    [tags]="tags"
+    [gruposTags]="gruposTags"
+    (guardado)="onTagGrupoGuardado()"
+    (cancelado)="cerrarDialog()">
+  </app-tag-grupo-form>
+</p-dialog>
+
+<!-- Overlay Spinner para operaciones -->
+@if (processing) {
+  <div class="overlay-spinner">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+}

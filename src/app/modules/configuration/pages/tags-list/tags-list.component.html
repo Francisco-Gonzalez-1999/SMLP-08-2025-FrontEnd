@@ -1,0 +1,241 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="tags-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-tag"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Administración de Tags</h2>
+        <p class="m-0 mt-1">Gestiona los tags del sistema</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="tags.length > 0">
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarTags()"
+        styleClass="p-button-sm">
+      </p-button>
+      <p-button
+        icon="pi pi-plus"
+        label="Nuevo Tag"
+        [text]="true"
+        severity="success"
+        (click)="abrirDialogCrear()"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  @if (tags.length > 0) {
+    <div class="table-section">
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Tags</h3>
+            <span class="section-subtitle">{{ tags.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="tags"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['nombre', 'nodeId', 'tipoDato', 'descripcion']"
+        styleClass="p-datatable-sm"
+        [scrollable]="true"
+        scrollHeight="58vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idTag" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idTag"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre" style="min-width: 150px">
+              Nombre
+              <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nodeId" style="min-width: 150px">
+              NodeId
+              <p-sortIcon field="nodeId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tipoDato" style="min-width: 120px">
+              Tipo Dato
+              <p-sortIcon field="tipoDato"></p-sortIcon>
+            </th>
+            <th pSortableColumn="descripcion" style="min-width: 200px">
+              Descripción
+              <p-sortIcon field="descripcion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="estaActivo" style="min-width: 110px; width: 110px">
+              Estado
+              <p-sortIcon field="estaActivo"></p-sortIcon>
+              <p-columnFilter
+                type="boolean"
+                field="estaActivo"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="fechaCreacion" style="min-width: 140px">
+              Fecha Creación
+              <p-sortIcon field="fechaCreacion"></p-sortIcon>
+            </th>
+            <th style="width: 150px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-tag>
+          <tr>
+            <td>
+              <span class="id-chip">#{{ tag.idTag }}</span>
+            </td>
+            <td>
+              <span class="nombre-text">{{ tag.nombre }}</span>
+            </td>
+            <td>
+              <span class="ip-text">{{ tag.nodeId }}</span>
+            </td>
+            <td>
+              <span class="tipo-text">{{ tag.tipoDato }}</span>
+            </td>
+            <td>
+              <span class="descripcion-text">{{ tag.descripcion || '-' }}</span>
+            </td>
+            <td class="text-center">
+              <p-tag
+                [value]="getEstadoTexto(tag.estaActivo)"
+                [severity]="getSeverity(tag.estaActivo)"
+                styleClass="estatus-tag">
+              </p-tag>
+            </td>
+            <td class="text-center">
+              <span class="fecha-text">{{ tag.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+            </td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-primary"
+                  (click)="abrirDialogEditar(tag)"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
+                <p-toggleButton
+                  [(ngModel)]="tag.estaActivo"
+                  [onLabel]="'Activo'"
+                  [offLabel]="'Inactivo'"
+                  (onChange)="cambiarEstado(tag)"
+                  [disabled]="processing"
+                  styleClass="w-9rem">
+                </p-toggleButton>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (tags.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-tag"></i>
+        </div>
+        <h3>No se encontraron Tags</h3>
+        <p>Actualmente no hay tags registrados en el sistema.</p>
+        <p-button
+          icon="pi pi-plus"
+          label="Crear Tag"
+          [outlined]="true"
+          (click)="abrirDialogCrear()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner
+        ariaLabel="loading"
+        [style]="{ width: '50px', height: '50px' }"
+        strokeWidth="4">
+      </p-progressSpinner>
+      <span class="loading-text">Cargando Tags...</span>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog para crear/editar -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  [style]="{width: '60rem', maxWidth: '90vw'}"
+  [header]="isEditMode ? 'Editar Tag' : 'Nuevo Tag'"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialog()">
+  <app-tag-form
+    [tag]="selectedTag"
+    [isEditMode]="isEditMode"
+    (guardado)="onTagGuardado()"
+    (cancelado)="cerrarDialog()">
+  </app-tag-form>
+</p-dialog>
+
+<!-- Overlay Spinner para operaciones -->
+@if (processing) {
+  <div class="overlay-spinner">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+}

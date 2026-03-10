@@ -1,0 +1,27 @@
+:host ::ng-deep {
+  .p-dropdown {
+    width: 100%;
+  }
+}
+
+.text-red-500 {
+  color: #ef4444;
+}
+
+form {
+  .field {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+      font-size: 0.875rem;
+    }
+  }
+
+  .formgrid {
+    padding: 0.5rem 0;
+  }
+}

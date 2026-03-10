@@ -1,0 +1,241 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="servidores-opcua-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-cloud"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Administración de Servidores OPC UA</h2>
+        <p class="m-0 mt-1">Gestiona los servidores OPC UA del sistema</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="servidores.length > 0">
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarServidores()"
+        styleClass="p-button-sm">
+      </p-button>
+      <p-button
+        icon="pi pi-plus"
+        label="Nuevo Servidor"
+        [text]="true"
+        severity="success"
+        (click)="abrirDialogCrear()"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  @if (servidores.length > 0) {
+    <div class="table-section">
+      <!-- Section Header -->
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Servidores OPC UA</h3>
+            <span class="section-subtitle">{{ servidores.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="servidores"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['nombre', 'descripcion', 'direccionUrl']"
+        styleClass="p-datatable-sm"
+        [scrollable]="true"
+        scrollHeight="58vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idServidorOpcua" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idServidorOpcua"></p-sortIcon>
+            </th>
+            <th pSortableColumn="nombre" style="min-width: 150px">
+              Nombre
+              <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="descripcion" style="min-width: 200px">
+              Descripción
+              <p-sortIcon field="descripcion"></p-sortIcon>
+            </th>
+            <th pSortableColumn="direccionUrl" style="min-width: 200px">
+              Dirección URL
+              <p-sortIcon field="direccionUrl"></p-sortIcon>
+            </th>
+            <th pSortableColumn="usuario" style="min-width: 120px">
+              Usuario
+              <p-sortIcon field="usuario"></p-sortIcon>
+            </th>
+            <th pSortableColumn="estaActivo" style="min-width: 110px; width: 110px">
+              Estado
+              <p-sortIcon field="estaActivo"></p-sortIcon>
+              <p-columnFilter
+                type="boolean"
+                field="estaActivo"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="fechaCreacion" style="min-width: 140px">
+              Fecha Creación
+              <p-sortIcon field="fechaCreacion"></p-sortIcon>
+            </th>
+            <th style="width: 150px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-servidor>
+          <tr>
+            <td>
+              <span class="id-chip">#{{ servidor.idServidorOpcua }}</span>
+            </td>
+            <td>
+              <span class="nombre-text">{{ servidor.nombre }}</span>
+            </td>
+            <td>
+              <span class="descripcion-text">{{ servidor.descripcion || '-' }}</span>
+            </td>
+            <td>
+              <span class="ip-text">{{ servidor.direccionUrl }}</span>
+            </td>
+            <td>
+              <span class="nombre-text">{{ servidor.usuario || '-' }}</span>
+            </td>
+            <td class="text-center">
+              <p-tag
+                [value]="getEstadoTexto(servidor.estaActivo)"
+                [severity]="getSeverity(servidor.estaActivo)"
+                styleClass="estatus-tag">
+              </p-tag>
+            </td>
+            <td class="text-center">
+              <span class="fecha-text">{{ servidor.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+            </td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-primary"
+                  (click)="abrirDialogEditar(servidor)"
+                  pTooltip="Editar"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
+                <p-toggleButton
+                  [(ngModel)]="servidor.estaActivo"
+                  [onLabel]="'Activo'"
+                  [offLabel]="'Inactivo'"
+                  (onChange)="cambiarEstado(servidor)"
+                  [disabled]="processing"
+                  styleClass="w-9rem">
+                </p-toggleButton>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (servidores.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-cloud"></i>
+        </div>
+        <h3>No se encontraron Servidores OPC UA</h3>
+        <p>Actualmente no hay servidores OPC UA registrados en el sistema.</p>
+        <p-button
+          icon="pi pi-plus"
+          label="Crear Servidor"
+          [outlined]="true"
+          (click)="abrirDialogCrear()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner
+        ariaLabel="loading"
+        [style]="{ width: '50px', height: '50px' }"
+        strokeWidth="4">
+      </p-progressSpinner>
+      <span class="loading-text">Cargando Servidores OPC UA...</span>
+    </div>
+  }
+
+</div>
+
+<!-- Dialog para crear/editar -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  [style]="{width: '50rem', maxWidth: '90vw'}"
+  [header]="isEditMode ? 'Editar Servidor OPC UA' : 'Nuevo Servidor OPC UA'"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialog()">
+  <app-servidor-opcua-form
+    [servidor]="selectedServidor"
+    [isEditMode]="isEditMode"
+    (guardado)="onServidorGuardado()"
+    (cancelado)="cerrarDialog()">
+  </app-servidor-opcua-form>
+</p-dialog>
+
+<!-- Overlay Spinner para operaciones -->
+@if (processing) {
+  <div class="overlay-spinner">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+}
