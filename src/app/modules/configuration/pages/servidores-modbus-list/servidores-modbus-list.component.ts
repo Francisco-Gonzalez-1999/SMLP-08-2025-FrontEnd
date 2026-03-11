@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -39,7 +38,6 @@ import { ServidorModbusFormComponent } from '../../components/servidor-modbus-fo
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -155,7 +153,8 @@ export class ServidoresModbusListComponent implements OnInit {
   }
 
   cambiarEstado(servidor: CatServidoresModbusDTO) {
-    const accion = servidor.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !servidor.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el Servidor Modbus "${servidor.nombre || 'ID: ' + servidor.idServidorModbus}"?`,
       header: 'Confirmar acción',
@@ -166,7 +165,7 @@ export class ServidoresModbusListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarServidorModbusDTO = {
           idServidorModbus: servidor.idServidorModbus,
-          estaActivo: !servidor.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catServidoresModbusService.activarDesactivarServidorModbus(dto).subscribe({

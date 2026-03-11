@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -36,7 +35,6 @@ import { EstadoParoFormComponent } from '../../components/estado-paro-form/estad
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -118,7 +116,8 @@ export class EstadosParosListComponent implements OnInit {
   }
 
   cambiarEstado(estado: CatEstadosParoDTO) {
-    const accion = estado.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !estado.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el estado de paro "${estado.nombre}"?`,
       header: 'Confirmar acción',
@@ -129,7 +128,7 @@ export class EstadosParosListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarEstadoParoDTO = {
           idEstadoParo: estado.idEstadoParo,
-          estaActivo: !estado.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catEstadosParosService.activarDesactivarEstadoParo(dto).subscribe({

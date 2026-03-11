@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -39,7 +38,6 @@ import { LineaFormComponent } from '../../components/linea-form/linea-form.compo
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -154,7 +152,8 @@ export class LineasListComponent implements OnInit {
   }
 
   cambiarEstado(linea: CatLineaDTO) {
-    const accion = linea.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !linea.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} la Línea "${linea.nombre}"?`,
       header: 'Confirmar acción',
@@ -165,7 +164,7 @@ export class LineasListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarLineaDTO = {
           idLinea: linea.idLinea,
-          estaActivo: !linea.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catLineasService.activarDesactivarLinea(dto).subscribe({

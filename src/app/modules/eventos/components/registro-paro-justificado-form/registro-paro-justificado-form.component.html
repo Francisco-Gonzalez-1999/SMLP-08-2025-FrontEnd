@@ -1,62 +1,212 @@
-<form (ngSubmit)="guardar()" class="config-form">
-  <div class="formgrid grid">
-    <div class="field col-12">
-      <label for="causaRaiz">Causa Raíz</label>
-      <input
-        id="causaRaiz"
-        type="text"
-        pInputText
-        [(ngModel)]="causaRaiz"
-        name="causaRaiz"
-        [disabled]="loading"
-        placeholder="Indique la causa raíz del paro" />
+<div class="justificacion-form-wrapper" *ngIf="registro">
+
+  <!-- Panel de Información del Paro -->
+  <div class="paro-info-panel">
+    <div class="paro-info-header">
+      <div class="paro-info-header-left">
+        <div class="paro-icon">
+          <i class="pi pi-stop-circle"></i>
+        </div>
+        <div>
+          <span class="paro-id">Registro #{{ registro.idRegistroParo }}</span>
+          <span class="paro-estado">
+            <p-tag
+              [value]="registro.estadoParoNombre || 'Sin estado'"
+              severity="warning"
+              styleClass="paro-estado-tag">
+            </p-tag>
+          </span>
+        </div>
+      </div>
+      <div class="paro-turno-badge" *ngIf="registro.turno">
+        <i class="pi pi-clock"></i>
+        {{ registro.turno }}
+      </div>
     </div>
 
-    <div class="field col-12">
-      <label for="subCausa">Subcausa</label>
-      <input
-        id="subCausa"
-        type="text"
-        pInputText
-        [(ngModel)]="subCausa"
-        name="subCausa"
-        [disabled]="loading"
-        placeholder="Subcausa (opcional)" />
-    </div>
+    <div class="paro-info-grid">
+      <div class="paro-info-item">
+        <span class="paro-info-label">
+          <i class="pi pi-sitemap"></i> Línea
+        </span>
+        <span class="paro-info-value highlight">{{ registro.lineaNombre || '-' }}</span>
+      </div>
+      <div class="paro-info-item">
+        <span class="paro-info-label">
+          <i class="pi pi-building"></i> Planta
+        </span>
+        <span class="paro-info-value">{{ registro.plantaNombre || '-' }}</span>
+      </div>
+      <div class="paro-info-item">
+        <span class="paro-info-label">
+          <i class="pi pi-tag"></i> Tag
+        </span>
+        <span class="paro-info-value">{{ registro.tagNombre || '-' }}</span>
+      </div>
+      <div class="paro-info-item">
+        <span class="paro-info-label">
+          <i class="pi pi-calendar"></i> Fecha
+        </span>
+        <span class="paro-info-value">{{ registro.fechaRegistro | date:'dd/MM/yyyy' }}</span>
+      </div>
 
-    <div class="field col-12">
-      <label for="comentarios">Comentarios</label>
-      <textarea
-        id="comentarios"
-        pInputTextarea
-        [(ngModel)]="comentarios"
-        name="comentarios"
-        [rows]="4"
-        [disabled]="loading"
-        placeholder="Comentarios adicionales (opcional)"
-        [autoResize]="false"
-        class="descripcion-textarea"></textarea>
+      <div class="paro-info-item">
+        <span class="paro-info-label">
+          <i class="pi pi-play"></i> Hora Inicio
+        </span>
+        <span class="paro-info-value time-value">{{ registro.horaInicio | date:'HH:mm:ss' }}</span>
+      </div>
+      <div class="paro-info-item">
+        <span class="paro-info-label">
+          <i class="pi pi-stop"></i> Hora Fin
+        </span>
+        <span class="paro-info-value time-value"
+          [class.sin-fin]="!registro.horaFin">
+          {{ registro.horaFin ? (registro.horaFin | date:'HH:mm:ss') : 'En curso...' }}
+        </span>
+      </div>
+      <div class="paro-info-item duracion-item">
+        <span class="paro-info-label">
+          <i class="pi pi-hourglass"></i> Duración
+        </span>
+        <span class="paro-info-value duracion-value"
+          [class.sin-duracion]="registro.duracionMinutos == null">
+          {{ registro.duracionMinutos != null ? registro.duracionMinutos + ' min' : 'En curso' }}
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="flex justify-content-end gap-2 mt-4">
-    <button
-      pButton
-      pRipple
-      type="button"
-      label="Cancelar"
-      icon="pi pi-times"
-      class="p-button-text"
-      (click)="cancelar()"
-      [disabled]="loading"></button>
-    <button
-      pButton
-      pRipple
-      type="submit"
-      label="Actualizar"
-      icon="pi pi-check"
-      class="p-button-warning"
-      [disabled]="loading"
-      [loading]="loading"></button>
-  </div>
-</form>
+  <p-divider styleClass="form-divider"></p-divider>
+
+  <!-- Sección de Justificación -->
+  <form (ngSubmit)="guardar()" class="justificacion-fields">
+    <div class="fields-header">
+      <div class="fields-header-icon">
+        <i class="pi pi-pencil"></i>
+      </div>
+      <div>
+        <span class="fields-title">Justificación</span>
+        <span class="fields-subtitle">Complete los campos de la justificación del paro</span>
+      </div>
+    </div>
+
+    <div class="formgrid grid mt-3">
+      <div class="field col-12 md:col-6">
+        <label for="idEstadoParo" class="field-label">
+          <i class="pi pi-info-circle"></i>
+          Estado del Paro
+        </label>
+        <p-dropdown
+          id="idEstadoParo"
+          [options]="estadosParo"
+          [(ngModel)]="idEstadoParo"
+          optionValue="idEstadoParo"
+          name="idEstadoParo"
+          placeholder="Seleccione el estado"
+          [showClear]="true"
+          [disabled]="loading"
+          styleClass="w-full dropdown-estado-paro">
+          <ng-template pTemplate="selectedItem" let-selected>
+            @if (selected) {
+              <div class="flex flex-column">
+                <span>{{ getEstadoParoNombre(selected) }}</span>
+                @if (getEstadoParoDescripcion(selected)) {
+                  <span class="text-xs text-color-secondary">{{ getEstadoParoDescripcion(selected) }}</span>
+                }
+              </div>
+            } @else {
+              <span class="dropdown-placeholder">Seleccione el estado</span>
+            }
+          </ng-template>
+          <ng-template let-estado pTemplate="item">
+            <div class="flex flex-column gap-1">
+              <span>{{ estado.nombre }}</span>
+              @if (estado.descripcion) {
+                <span class="text-xs text-color-secondary">{{ estado.descripcion }}</span>
+              }
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label for="causaRaiz" class="field-label">
+          <i class="pi pi-exclamation-circle"></i>
+          Causa Raíz
+        </label>
+        <input
+          id="causaRaiz"
+          type="text"
+          pInputText
+          [(ngModel)]="causaRaiz"
+          name="causaRaiz"
+          [disabled]="loading"
+          placeholder="Indique la causa raíz del paro"
+          class="w-full" />
+      </div>
+
+      <div class="field col-12 md:col-6">
+        <label for="subCausa" class="field-label">
+          <i class="pi pi-minus-circle"></i>
+          Subcausa
+        </label>
+        <input
+          id="subCausa"
+          type="text"
+          pInputText
+          [(ngModel)]="subCausa"
+          name="subCausa"
+          [disabled]="loading"
+          placeholder="Subcausa (opcional)"
+          class="w-full" />
+      </div>
+
+      <div class="field col-12">
+        <label for="comentarios" class="field-label">
+          <i class="pi pi-comment"></i>
+          Comentarios
+        </label>
+        <textarea
+          id="comentarios"
+          pInputTextarea
+          [(ngModel)]="comentarios"
+          name="comentarios"
+          [rows]="4"
+          [disabled]="loading"
+          placeholder="Observaciones o comentarios adicionales..."
+          [autoResize]="false"
+          class="w-full comentarios-textarea"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <div class="usuario-info" *ngIf="registro.usuarioUltimaMod || registro.usuarioRegistra">
+        <i class="pi pi-user"></i>
+        <span>Último usuario: {{ registro.usuarioUltimaMod || registro.usuarioRegistra }}</span>
+      </div>
+      <div class="action-buttons">
+        <button
+          pButton
+          pRipple
+          type="button"
+          label="Cancelar"
+          icon="pi pi-times"
+          class="p-button-text p-button-secondary"
+          (click)="cancelar()"
+          [disabled]="loading">
+        </button>
+        <button
+          pButton
+          pRipple
+          type="submit"
+          label="Guardar justificación"
+          icon="pi pi-check"
+          class="p-button-warning"
+          [disabled]="loading"
+          [loading]="loading">
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -36,7 +35,6 @@ import { EventoFormComponent } from '../../components/evento-form/evento-form.co
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -119,7 +117,8 @@ export class EventosListComponent implements OnInit {
 
   cambiarEstado(evento: CatEventoDTO) {
     const nombre = evento.nombre || 'Sin nombre';
-    const accion = evento.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !evento.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el Evento "${nombre}"?`,
       header: 'Confirmar acción',
@@ -130,7 +129,7 @@ export class EventosListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarEventoDTO = {
           idEvento: evento.idEvento,
-          estaActivo: !evento.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catEventosService.activarDesactivarEvento(dto).subscribe({

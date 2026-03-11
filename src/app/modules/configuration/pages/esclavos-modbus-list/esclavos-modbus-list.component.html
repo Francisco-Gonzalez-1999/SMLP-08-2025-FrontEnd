@@ -182,14 +182,19 @@
                   tooltipPosition="top"
                   styleClass="p-button-sm">
                 </button>
-                <p-toggleButton
-                  [(ngModel)]="esclavo.estaActivo"
-                  [onLabel]="'Activo'"
-                  [offLabel]="'Inactivo'"
-                  (onChange)="cambiarEstado(esclavo)"
+                <button
+                  pButton
+                  pRipple
+                  [label]="esclavo.estaActivo ? 'Desactivar' : 'Activar'"
+                  [severity]="esclavo.estaActivo ? 'danger' : 'success'"
+                  [outlined]="true"
+                  size="small"
+                  (click)="cambiarEstado(esclavo)"
                   [disabled]="processing"
-                  styleClass="w-9rem">
-                </p-toggleButton>
+                  pTooltip="{{ esclavo.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
               </div>
             </td>
           </tr>

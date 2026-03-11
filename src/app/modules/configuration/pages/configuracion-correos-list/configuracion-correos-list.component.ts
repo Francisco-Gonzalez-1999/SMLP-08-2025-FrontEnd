@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -39,7 +38,6 @@ import { ConfiguracionCorreoFormComponent } from '../../components/configuracion
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -121,7 +119,8 @@ export class ConfiguracionCorreosListComponent implements OnInit {
   }
 
   cambiarEstado(config: CatConfiguracionCorreoDTO) {
-    const accion = config.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !config.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} la configuración "${config.tipoConfiguracion}"?`,
       header: 'Confirmar acción',
@@ -132,7 +131,7 @@ export class ConfiguracionCorreosListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarConfiguracionCorreoDTO = {
           idConfiguracionCorreo: config.idConfiguracionCorreo,
-          estaActivo: !config.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catConfiguracionCorreosService.activarDesactivarConfiguracionCorreo(dto).subscribe({

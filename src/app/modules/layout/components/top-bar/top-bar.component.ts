@@ -30,13 +30,11 @@ export class TopBarComponent implements OnInit {
 
 
   userMenuItems!: MenuItem[];
+  userData: any = null;
 
   @ViewChild('menubutton') menuButton!: ElementRef;
-
   @ViewChild('topbarmenubutton') topbarMenuButton!: ElementRef;
-
   @ViewChild('topbarmenu') menu!: ElementRef;
-
 
   constructor(
     public layoutService: LayoutService,
@@ -44,31 +42,35 @@ export class TopBarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.loadUserData();
+
+    this.AuthService.userData$.subscribe(user => {
+      this.userData = user;
+    });
+
     this.userMenuItems = [
       {
-          label: 'Perfil',
-          items: [
-            // {
-            //     label: 'Settings',
-            //     icon: 'pi pi-cog'
-            // },
-            // {
-            //     label: 'Messages',
-            //     icon: 'pi pi-inbox',
-            //     badge: '2'
-            // },
-            {
-                label: 'Logout',
-                icon: 'pi pi-sign-out',
-                command: () => {
-                  this.AuthService.logout();
-                }
+        label: 'Perfil',
+        items: [
+          {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+            command: () => {
+              this.AuthService.logout();
             }
+          }
         ]
       }
     ];
-
   }
+
+  private loadUserData() {
+    const userData = this.AuthService.getUserData();
+    if (userData) {
+      this.userData = userData;
+    }
+  }
+
 
 }
 

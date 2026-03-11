@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -40,7 +39,6 @@ import { RegistroParoJustificadoFormComponent } from '../../components/registro-
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -115,10 +113,12 @@ export class RegistrosParosJustificadosListComponent implements OnInit {
   }
 
   cambiarEstado(registro: EvtRegistroParosJustificadoDTO) {
-    const accion = registro.estaActivo ? 'desactivar' : 'activar';
-    const detalle = `Línea: ${registro.lineaNombre || '-'} | Evento: ${registro.eventoNombre || '-'}`;
+    const nuevoEstado = !registro.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
+    const detalle = `Línea: ${registro.lineaNombre || '-'}`;
+
     this.confirmationService.confirm({
-      message: `¿Está seguro que desea ${accion} este registro? ${detalle}`,
+      message: `¿Está seguro que desea ${accion} este registro?\n${detalle}`,
       header: 'Confirmar acción',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí',
@@ -130,7 +130,7 @@ export class RegistrosParosJustificadosListComponent implements OnInit {
 
         const dto: ActivarDesactivarRegistroParoJustificadoDTO = {
           idRegistroParo: registro.idRegistroParo,
-          estaActivo: !registro.estaActivo,
+          estaActivo: nuevoEstado,
           usuarioUltimaMod
         };
 

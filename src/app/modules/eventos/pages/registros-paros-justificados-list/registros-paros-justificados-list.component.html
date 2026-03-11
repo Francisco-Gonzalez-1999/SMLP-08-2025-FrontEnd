@@ -59,7 +59,7 @@
         [rows]="15"
         [rowsPerPageOptions]="[10, 15, 25, 50]"
         [tableStyle]="{ 'min-width': '100%' }"
-        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'tagNombre', 'estadoParoNombre', 'eventoNombre', 'causaRaiz', 'subCausa', 'comentarios']"
+        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'tagNombre', 'estadoParoNombre', 'causaRaiz', 'subCausa', 'comentarios']"
         styleClass="p-datatable-sm config-table"
         [scrollable]="true"
         scrollHeight="58vh">
@@ -73,7 +73,6 @@
             <th pSortableColumn="plantaNombre" style="min-width: 120px">Planta</th>
             <th pSortableColumn="tagNombre" style="min-width: 120px">Tag</th>
             <th pSortableColumn="estadoParoNombre" style="min-width: 130px">Estado Paro</th>
-            <th pSortableColumn="eventoNombre" style="min-width: 130px">Evento</th>
             <th pSortableColumn="fechaRegistro" style="min-width: 110px">Fecha</th>
             <th style="min-width: 90px">Hora Inicio</th>
             <th style="min-width: 90px">Hora Fin</th>
@@ -93,7 +92,6 @@
             <td><span class="nombre-text">{{ registro.plantaNombre || '-' }}</span></td>
             <td><span class="nombre-text">{{ registro.tagNombre || '-' }}</span></td>
             <td><span class="nombre-text">{{ registro.estadoParoNombre || '-' }}</span></td>
-            <td><span class="nombre-text">{{ registro.eventoNombre || '-' }}</span></td>
             <td><span class="fecha-text">{{ registro.fechaRegistro | date:'dd/MM/yyyy' }}</span></td>
             <td><span class="fecha-text">{{ registro.horaInicio }}</span></td>
             <td><span class="fecha-text">{{ registro.horaFin || '-' }}</span></td>
@@ -114,14 +112,19 @@
                   tooltipPosition="top"
                   styleClass="p-button-sm">
                 </button>
-                <p-toggleButton
-                  [(ngModel)]="registro.estaActivo"
-                  [onLabel]="'Activo'"
-                  [offLabel]="'Inactivo'"
-                  (onChange)="cambiarEstado(registro)"
+                <button
+                  pButton
+                  pRipple
+                  [label]="registro.estaActivo ? 'Desactivar' : 'Activar'"
+                  [severity]="registro.estaActivo ? 'danger' : 'success'"
+                  [outlined]="true"
+                  size="small"
+                  (click)="cambiarEstado(registro)"
                   [disabled]="processing"
-                  styleClass="w-9rem">
-                </p-toggleButton>
+                  pTooltip="{{ registro.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
               </div>
             </td>
           </tr>
@@ -129,7 +132,7 @@
 
         <ng-template pTemplate="empty">
           <tr>
-            <td colspan="15" class="text-center py-5">
+            <td colspan="14" class="text-center py-5">
               <div class="empty-inline">
                 <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
                 <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
@@ -174,8 +177,8 @@
 <p-dialog
   [(visible)]="showDialog"
   [modal]="true"
-  [style]="{width: '45rem', maxWidth: '90vw'}"
-  header="Editar justificación de paro"
+  [style]="{width: '55rem', maxWidth: '95vw'}"
+  header="Justificación de Paro"
   [draggable]="false"
   [resizable]="false"
   [contentStyle]="{'padding': '1.5rem'}"

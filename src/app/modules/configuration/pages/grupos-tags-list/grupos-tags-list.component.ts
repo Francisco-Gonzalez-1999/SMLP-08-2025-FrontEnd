@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -39,7 +38,6 @@ import { GrupoTagFormComponent } from '../../components/grupo-tag-form/grupo-tag
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -155,7 +153,8 @@ export class GruposTagsListComponent implements OnInit {
   }
 
   cambiarEstado(grupoTag: CatGruposTagDTO) {
-    const accion = grupoTag.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !grupoTag.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el Grupo de Tags "${grupoTag.nombre || 'ID: ' + grupoTag.idGrupoTag}"?`,
       header: 'Confirmar acción',
@@ -166,7 +165,7 @@ export class GruposTagsListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarGrupoTagDTO = {
           idGrupoTag: grupoTag.idGrupoTag,
-          estaActivo: !grupoTag.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catGruposTagsService.activarDesactivarGrupoTag(dto).subscribe({

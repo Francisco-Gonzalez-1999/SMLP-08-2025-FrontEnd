@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -39,7 +38,6 @@ import { PlcFormComponent } from '../../components/plc-form/plc-form.component';
     DialogModule,
     InputTextModule,
     InputNumberModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -131,7 +129,8 @@ export class PlcsListComponent implements OnInit {
 
 
   cambiarEstado(plc: CatPlcDTO) {
-    const accion = plc.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !plc.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el PLC "${plc.nombre}"?`,
       header: 'Confirmar acción',
@@ -142,7 +141,7 @@ export class PlcsListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarPlcDTO = {
           idPlc: plc.idPlc,
-          estaActivo: !plc.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catPlcsService.activarDesactivarPLC(dto).subscribe({

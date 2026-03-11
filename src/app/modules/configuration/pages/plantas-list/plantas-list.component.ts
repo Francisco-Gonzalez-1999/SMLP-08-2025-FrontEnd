@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -36,7 +35,6 @@ import { PlantaFormComponent } from '../../components/planta-form/planta-form.co
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -118,7 +116,8 @@ export class PlantasListComponent implements OnInit {
   }
 
   cambiarEstado(planta: CatPlantaDTO) {
-    const accion = planta.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !planta.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} la Planta "${planta.nombre}"?`,
       header: 'Confirmar acción',
@@ -129,7 +128,7 @@ export class PlantasListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarPlantaDTO = {
           idPlanta: planta.idPlanta,
-          estaActivo: !planta.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catPlantasService.activarDesactivarPlanta(dto).subscribe({

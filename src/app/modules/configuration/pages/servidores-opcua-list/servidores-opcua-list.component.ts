@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -36,7 +35,6 @@ import { ServidorOpcuaFormComponent } from '../../components/servidor-opcua-form
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -118,7 +116,8 @@ export class ServidoresOpcuaListComponent implements OnInit {
   }
 
   cambiarEstado(servidor: CatServidoresOpcuaDTO) {
-    const accion = servidor.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !servidor.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el Servidor OPC UA "${servidor.nombre}"?`,
       header: 'Confirmar acción',
@@ -129,7 +128,7 @@ export class ServidoresOpcuaListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarServidorOpcuaDTO = {
           idServidorOpcua: servidor.idServidorOpcua,
-          estaActivo: !servidor.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catServidoresOpcuaService.activarDesactivarServidorOpcua(dto).subscribe({

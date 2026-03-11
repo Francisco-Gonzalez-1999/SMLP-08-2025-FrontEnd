@@ -9,7 +9,6 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -39,7 +38,6 @@ import { EsclavoModbusFormComponent } from '../../components/esclavo-modbus-form
     DialogModule,
     InputTextModule,
     InputNumberModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -130,7 +128,8 @@ export class EsclavosModbusListComponent implements OnInit {
   }
 
   cambiarEstado(esclavo: CatEsclavosModbuDTO) {
-    const accion = esclavo.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !esclavo.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el Esclavo Modbus "${esclavo.nombre}"?`,
       header: 'Confirmar acción',
@@ -141,7 +140,7 @@ export class EsclavosModbusListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarEsclavoModbusDTO = {
           idEsclavoModbus: esclavo.idEsclavoModbus,
-          estaActivo: !esclavo.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catEsclavosModbusService.activarDesactivarEsclavoModbus(dto).subscribe({

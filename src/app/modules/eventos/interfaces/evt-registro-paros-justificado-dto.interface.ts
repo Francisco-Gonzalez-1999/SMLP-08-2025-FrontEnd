@@ -30,6 +30,7 @@ export interface ActualizarRegistroParoJustificadoDTO {
   causaRaiz: string | null;
   subCausa: string | null;
   comentarios: string | null;
+  idEstadoParo?: number | null;
   usuarioUltimaMod: string | null;
 }
 

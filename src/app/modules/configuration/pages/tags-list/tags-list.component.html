@@ -153,14 +153,19 @@
                   tooltipPosition="top"
                   styleClass="p-button-sm">
                 </button>
-                <p-toggleButton
-                  [(ngModel)]="tag.estaActivo"
-                  [onLabel]="'Activo'"
-                  [offLabel]="'Inactivo'"
-                  (onChange)="cambiarEstado(tag)"
+                <button
+                  pButton
+                  pRipple
+                  [label]="tag.estaActivo ? 'Desactivar' : 'Activar'"
+                  [severity]="tag.estaActivo ? 'danger' : 'success'"
+                  [outlined]="true"
+                  size="small"
+                  (click)="cambiarEstado(tag)"
                   [disabled]="processing"
-                  styleClass="w-9rem">
-                </p-toggleButton>
+                  pTooltip="{{ tag.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
               </div>
             </td>
           </tr>

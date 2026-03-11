@@ -3,7 +3,280 @@
  * Los estilos compartidos están disponibles globalmente desde: shared/styles/configuration-shared.styles.scss
  */
 
-.descripcion-textarea {
+.justificacion-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+// ── Panel de información del paro ──────────────────────────────
+.paro-info-panel {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.paro-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.paro-info-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.paro-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.paro-id {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.paro-estado {
+  display: block;
+  margin-top: 0.2rem;
+}
+
+.paro-turno-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+
+  i {
+    font-size: 0.7rem;
+    color: #94a3b8;
+  }
+}
+
+.paro-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.paro-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: white;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #f1f5f9;
+}
+
+.duracion-item {
+  grid-column: span 1;
+}
+
+.paro-info-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  i {
+    font-size: 0.65rem;
+  }
+}
+
+.paro-info-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.highlight {
+    color: #2563eb;
+    font-weight: 700;
+  }
+
+  &.time-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    color: #475569;
+  }
+
+  &.sin-fin {
+    color: #f59e0b;
+    font-style: italic;
+    font-size: 0.78rem;
+  }
+
+  &.duracion-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &.sin-duracion {
+    color: #f59e0b;
+    font-style: italic;
+    font-size: 0.78rem;
+  }
+}
+
+// ── Divider ────────────────────────────────────────────────────
+:host ::ng-deep .form-divider {
+  margin: 1rem 0 0.5rem;
+
+  .p-divider-content {
+    background: transparent;
+  }
+}
+
+// ── Sección del formulario ─────────────────────────────────────
+.justificacion-fields {
+  padding: 0;
+}
+
+.fields-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.fields-header-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.fields-title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.fields-subtitle {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.1rem;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.4rem;
+
+  i {
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+}
+
+.comentarios-textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 90px;
+}
+
+// Dropdown Estado del Paro - altura mínima y placeholder visible
+:host ::ng-deep .dropdown-estado-paro {
+  &.p-dropdown,
+  .p-dropdown {
+    min-height: 2.5rem;
+  }
+  .p-dropdown-label {
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .p-dropdown-trigger {
+    min-height: 2.5rem;
+  }
+  .dropdown-placeholder {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+}
+
+// Descripción en letra pequeña en los ítems del dropdown
+:host ::ng-deep .p-dropdown-item {
+  .text-xs {
+    font-size: 0.75rem;
+    color: var(--p-text-muted-color, #6b7280);
+    margin-top: 0.15rem;
+  }
+}
+
+// ── Acciones del formulario ────────────────────────────────────
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 0.5rem;
+}
+
+.usuario-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+
+  i {
+    font-size: 0.7rem;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
 }

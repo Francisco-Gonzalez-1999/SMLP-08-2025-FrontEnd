@@ -8,7 +8,6 @@ import { Table } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -36,7 +35,6 @@ import { TagFormComponent } from '../../components/tag-form/tag-form.component';
     ButtonModule,
     DialogModule,
     InputTextModule,
-    ToggleButtonModule,
     ToastModule,
     ConfirmDialogModule,
     ToolbarModule,
@@ -118,7 +116,8 @@ export class TagsListComponent implements OnInit {
   }
 
   cambiarEstado(tag: CatTagDTO) {
-    const accion = tag.estaActivo ? 'desactivar' : 'activar';
+    const nuevoEstado = !tag.estaActivo;
+    const accion = nuevoEstado ? 'activar' : 'desactivar';
     this.confirmationService.confirm({
       message: `¿Está seguro que desea ${accion} el Tag "${tag.nombre}"?`,
       header: 'Confirmar acción',
@@ -129,7 +128,7 @@ export class TagsListComponent implements OnInit {
         this.processing = true;
         const dto: ActivarDesactivarTagDTO = {
           idTag: tag.idTag,
-          estaActivo: !tag.estaActivo
+          estaActivo: nuevoEstado
         };
 
         this.catTagsService.activarDesactivarTag(dto).subscribe({

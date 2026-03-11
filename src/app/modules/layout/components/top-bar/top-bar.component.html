@@ -1,3 +1,4 @@
+<!-- top-bar.component.html -->
 <div class="layout-topbar">
 
   <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
@@ -12,18 +13,30 @@
 
     <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" (click)="layoutService.showProfileSidebar()">
       <i class="pi pi-ellipsis-v"></i>
-  </button>
+    </button>
 
-      <div class="flex flex-row justify-content-center align-items-center ">
-        <p-menu #userMenu [model]="userMenuItems" [popup]="true" appendTo="body"/>
-        <ng-container *ngIf="AuthService.userData$ | async as user">
+    <div class="flex flex-row justify-content-center align-items-center ">
+      <p-menu #userMenu [model]="userMenuItems" [popup]="true" appendTo="body"/>
+
+      <!-- Opción 1: Usar la variable local (más rápida para refresh) -->
+      <span class="user-name" *ngIf="userData">{{ userData.name }}</span>
+
+      <!-- Opción 2: Usar el observable como fallback -->
+      <!-- <ng-container *ngIf="!userData">
+        <ng-container *ngIf="AuthService.userData$ | async as user; else loading">
           <span class="user-name">{{ user.name }}</span>
         </ng-container>
-        <button (click)="userMenu.toggle($event)" class="p-link layout-topbar-button">
-            <i class="pi pi-user"></i>
-            <span>Profile</span>
-          </button>
-      </div>
+      </ng-container> -->
+
+      <ng-template #loading>
+        <span class="user-name">Cargando...</span>
+      </ng-template>
+
+      <button (click)="userMenu.toggle($event)" class="p-link layout-topbar-button">
+          <i class="pi pi-user"></i>
+          <span>Profile</span>
+      </button>
+    </div>
 
   </div>
 </div>
