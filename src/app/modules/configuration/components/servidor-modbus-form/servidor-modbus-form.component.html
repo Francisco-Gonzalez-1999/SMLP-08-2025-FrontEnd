@@ -2,12 +2,12 @@
   <div class="formgrid grid">
     <div class="field col-12">
       <label for="idLinea">Línea</label>
-      <p-dropdown 
-        id="idLinea" 
-        [(ngModel)]="formData.idLinea" 
+      <p-dropdown
+        id="idLinea"
+        [(ngModel)]="formData.idLinea"
         name="idLinea"
-        [options]="lineasOptions" 
-        optionLabel="label" 
+        [options]="lineasOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione una línea (opcional)"
@@ -16,37 +16,38 @@
 
     <div class="field col-12">
       <label for="nombre">Nombre</label>
-      <input 
-        id="nombre" 
-        type="text" 
-        pInputText 
-        [(ngModel)]="formData.nombre" 
+      <input
+        id="nombre"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.nombre"
         name="nombre"
         [disabled]="loading"
+        appendTo="body"
         placeholder="Ingrese el nombre del servidor (opcional)" />
     </div>
 
     <div class="field col-12">
       <label for="descripcion">Descripción</label>
-      <textarea 
-        id="descripcion" 
-        pInputTextarea 
-        [(ngModel)]="formData.descripcion" 
+      <textarea
+        id="descripcion"
+        pInputTextarea
+        [(ngModel)]="formData.descripcion"
         name="descripcion"
         [rows]="3"
         [disabled]="loading"
-        placeholder="Ingrese una descripción (opcional)" 
+        placeholder="Ingrese una descripción (opcional)"
         [autoResize]="false"
         class="descripcion-textarea"></textarea>
     </div>
 
     <div class="field col-12 md:col-6">
       <label for="ip">Dirección IP <span class="text-red-500">*</span></label>
-      <input 
-        id="ip" 
-        type="text" 
-        pInputText 
-        [(ngModel)]="formData.ip" 
+      <input
+        id="ip"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.ip"
         name="ip"
         required
         [disabled]="loading"
@@ -55,11 +56,11 @@
 
     <div class="field col-12 md:col-6">
       <label for="puerto">Puerto <span class="text-red-500">*</span></label>
-      <p-inputNumber 
-        id="puerto" 
-        [(ngModel)]="formData.puerto" 
+      <p-inputNumber
+        id="puerto"
+        [(ngModel)]="formData.puerto"
         name="puerto"
-        [min]="1" 
+        [min]="1"
         [max]="65535"
         [disabled]="loading"
         placeholder="Ej: 502"
@@ -69,9 +70,9 @@
 
     <div class="field col-12 md:col-6">
       <label for="estacionId">ID Estación</label>
-      <p-inputNumber 
-        id="estacionId" 
-        [(ngModel)]="formData.estacionId" 
+      <p-inputNumber
+        id="estacionId"
+        [(ngModel)]="formData.estacionId"
         name="estacionId"
         [min]="0"
         [disabled]="loading"
@@ -82,9 +83,9 @@
 
     <div class="field col-12 md:col-6">
       <label for="umbralCorriente">Umbral Corriente</label>
-      <p-inputNumber 
-        id="umbralCorriente" 
-        [(ngModel)]="formData.umbralCorriente" 
+      <p-inputNumber
+        id="umbralCorriente"
+        [(ngModel)]="formData.umbralCorriente"
         name="umbralCorriente"
         [min]="0"
         [disabled]="loading"
@@ -99,8 +100,8 @@
     <div class="field col-12" *ngIf="isEditMode">
       <label for="estaActivo">Estado</label>
       <div class="flex align-items-center gap-2">
-        <p-inputSwitch 
-          [(ngModel)]="formData.estaActivo" 
+        <p-inputSwitch
+          [(ngModel)]="formData.estaActivo"
           name="estaActivo"
           [disabled]="loading"></p-inputSwitch>
         <span>{{ formData.estaActivo ? 'Activo' : 'Inactivo' }}</span>
@@ -109,20 +110,20 @@
   </div>
 
   <div class="flex justify-content-end gap-2 mt-4">
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="button"
-      label="Cancelar" 
-      icon="pi pi-times" 
+      label="Cancelar"
+      icon="pi pi-times"
       class="p-button-text"
       (click)="cancelar()"
       [disabled]="loading"></button>
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="submit"
-      [label]="isEditMode ? 'Actualizar' : 'Crear'" 
+      [label]="isEditMode ? 'Actualizar' : 'Crear'"
       [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
       [class]="isEditMode ? 'p-button-warning' : 'p-button-success'"
       [disabled]="loading"

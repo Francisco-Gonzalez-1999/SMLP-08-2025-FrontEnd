@@ -1,30 +1,30 @@
 <p-toast position="top-right"></p-toast>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
-<div class="lineas-container">
+<div class="configuracion-correos-container">
 
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
       <div class="header-icon">
-        <i class="pi pi-sitemap"></i>
+        <i class="pi pi-envelope"></i>
       </div>
       <div>
-        <h2 class="m-0">Administración de Líneas</h2>
-        <p class="m-0 mt-1">Gestiona las líneas de producción del sistema</p>
+        <h2 class="m-0">Configuración de Correos</h2>
+        <p class="m-0 mt-1">Gestiona los correos para notificaciones y alertas</p>
       </div>
     </div>
-    <div class="header-actions" *ngIf="lineas.length > 0">
+    <div class="header-actions" *ngIf="configuraciones.length > 0">
       <p-button
         icon="pi pi-refresh"
         label="Actualizar"
         [text]="true"
-        (click)="cargarLineas()"
+        (click)="cargarConfiguraciones()"
         styleClass="p-button-sm">
       </p-button>
       <p-button
         icon="pi pi-plus"
-        label="Nueva Línea"
+        label="Nueva Configuración"
         [text]="true"
         severity="success"
         (click)="abrirDialogCrear()"
@@ -34,17 +34,16 @@
   </div>
 
   <!-- Table Section -->
-  @if (lineas.length > 0) {
+  @if (configuraciones.length > 0) {
     <div class="table-section">
-      <!-- Section Header -->
       <div class="section-header">
         <div class="section-header-left">
           <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
             <i class="pi pi-table"></i>
           </div>
           <div>
-            <h3 class="section-title">Listado de Líneas</h3>
-            <span class="section-subtitle">{{ lineas.length }} registro(s) encontrado(s)</span>
+            <h3 class="section-title">Listado de Configuraciones</h3>
+            <span class="section-subtitle">{{ configuraciones.length }} registro(s) encontrado(s)</span>
           </div>
         </div>
         <div class="section-header-right">
@@ -63,94 +62,51 @@
 
       <p-table
         #dt
-        [value]="lineas"
+        [value]="configuraciones"
         [paginator]="true"
         [rows]="15"
         [rowsPerPageOptions]="[10, 15, 25, 50]"
         [tableStyle]="{ 'min-width': '100%' }"
-        [globalFilterFields]="['nombre', 'descripcion']"
-        styleClass="p-datatable-sm"
+        [globalFilterFields]="['tipoConfiguracion', 'nombre', 'email']"
+        styleClass="p-datatable-sm config-table"
         [scrollable]="true"
         scrollHeight="58vh">
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="idLinea" style="min-width: 70px; width: 70px">
-              ID <p-sortIcon field="idLinea"></p-sortIcon>
+            <th pSortableColumn="idConfiguracionCorreo" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idConfiguracionCorreo"></p-sortIcon>
             </th>
-            <th pSortableColumn="idPlanta" style="min-width: 150px">
-              Planta
-              <p-sortIcon field="idPlanta"></p-sortIcon>
-              <p-columnFilter
-                type="text"
-                field="idPlanta"
-                display="menu"
-                [showMatchModes]="false"
-                [showAddButton]="false"
-                [showOperator]="false">
-                <ng-template pTemplate="filter" let-filter="filterCallback">
-                  <p-dropdown
-                    [options]="getUniquePlanta()"
-                    (onChange)="filter($any($event).value)"
-                    [showClear]="true"
-                    placeholder="Todos"
-                    appendTo="body"
-                    styleClass="w-full column-filter-dropdown">
-                  </p-dropdown>
-                </ng-template>
-              </p-columnFilter>
+            <th pSortableColumn="tipoConfiguracion" style="min-width: 160px">
+              Tipo <p-sortIcon field="tipoConfiguracion"></p-sortIcon>
             </th>
-            <th pSortableColumn="nombre" style="min-width: 200px">
-              Nombre
-              <p-sortIcon field="nombre"></p-sortIcon>
+            <th pSortableColumn="nombre" style="min-width: 180px">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
             </th>
-            <th pSortableColumn="descripcion" style="min-width: 250px">
-              Descripción
-              <p-sortIcon field="descripcion"></p-sortIcon>
+            <th pSortableColumn="email" style="min-width: 220px">
+              Email <p-sortIcon field="email"></p-sortIcon>
             </th>
             <th pSortableColumn="estaActivo" style="min-width: 110px; width: 110px">
-              Estado
-              <p-sortIcon field="estaActivo"></p-sortIcon>
-              <p-columnFilter
-                type="boolean"
-                field="estaActivo"
-                display="menu"
-                [showMatchModes]="false"
-                [showAddButton]="false"
-                [showOperator]="false">
-              </p-columnFilter>
+              Estado <p-sortIcon field="estaActivo"></p-sortIcon>
             </th>
             <th pSortableColumn="fechaCreacion" style="min-width: 140px">
-              Fecha Creación
-              <p-sortIcon field="fechaCreacion"></p-sortIcon>
+              Fecha Creación <p-sortIcon field="fechaCreacion"></p-sortIcon>
             </th>
             <th style="width: 150px">Acciones</th>
           </tr>
         </ng-template>
 
-        <ng-template pTemplate="body" let-linea>
+        <ng-template pTemplate="body" let-config>
           <tr>
-            <td>
-              <span class="id-chip">#{{ linea.idLinea }}</span>
-            </td>
-            <td>
-              <span class="nombre-text">{{ getNombrePlanta(linea.idPlanta) }}</span>
-            </td>
-            <td>
-              <span class="nombre-text">{{ linea.nombre }}</span>
-            </td>
-            <td>
-              <span class="descripcion-text">{{ linea.descripcion || '-' }}</span>
+            <td><span class="id-chip">#{{ config.idConfiguracionCorreo }}</span></td>
+            <td><span class="nombre-text">{{ config.tipoConfiguracion }}</span></td>
+            <td><span class="descripcion-text">{{ config.nombre || '-' }}</span></td>
+            <td><span class="ip-text">{{ config.email }}</span></td>
+            <td class="text-center">
+              <p-tag [value]="getEstadoTexto(config.estaActivo)" [severity]="getSeverity(config.estaActivo)" styleClass="estatus-tag"></p-tag>
             </td>
             <td class="text-center">
-              <p-tag
-                [value]="getEstadoTexto(linea.estaActivo)"
-                [severity]="getSeverity(linea.estaActivo)"
-                styleClass="estatus-tag">
-              </p-tag>
-            </td>
-            <td class="text-center">
-              <span class="fecha-text">{{ linea.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="fecha-text">{{ config.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
             </td>
             <td>
               <div class="flex align-items-center gap-2">
@@ -159,16 +115,16 @@
                   pRipple
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-text p-button-primary"
-                  (click)="abrirDialogEditar(linea)"
+                  (click)="abrirDialogEditar(config)"
                   pTooltip="Editar"
                   tooltipPosition="top"
                   styleClass="p-button-sm">
                 </button>
                 <p-toggleButton
-                  [(ngModel)]="linea.estaActivo"
+                  [(ngModel)]="config.estaActivo"
                   [onLabel]="'Activo'"
                   [offLabel]="'Inactivo'"
-                  (onChange)="cambiarEstado(linea)"
+                  (onChange)="cambiarEstado(config)"
                   [disabled]="processing"
                   styleClass="w-9rem">
                 </p-toggleButton>
@@ -192,17 +148,17 @@
   }
 
   <!-- Empty State -->
-  @if (lineas.length === 0 && !loading) {
+  @if (configuraciones.length === 0 && !loading) {
     <div class="empty-state">
       <div class="empty-state-content">
         <div class="empty-icon">
-          <i class="pi pi-sitemap"></i>
+          <i class="pi pi-envelope"></i>
         </div>
-        <h3>No se encontraron Líneas</h3>
-        <p>Actualmente no hay líneas registradas en el sistema.</p>
+        <h3>No hay configuraciones de correo</h3>
+        <p>Actualmente no hay configuraciones de correo registradas.</p>
         <p-button
           icon="pi pi-plus"
-          label="Crear Línea"
+          label="Crear Configuración"
           [outlined]="true"
           (click)="abrirDialogCrear()"
           styleClass="p-button-sm mt-3">
@@ -214,38 +170,31 @@
   <!-- Loading -->
   @if (loading) {
     <div class="loading-section">
-      <p-progressSpinner
-        ariaLabel="loading"
-        [style]="{ width: '50px', height: '50px' }"
-        strokeWidth="4">
-      </p-progressSpinner>
-      <span class="loading-text">Cargando Líneas...</span>
+      <p-progressSpinner ariaLabel="loading" [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <span class="loading-text">Cargando configuraciones...</span>
     </div>
   }
-
 </div>
 
-<!-- Dialog para crear/editar -->
+<!-- Dialog -->
 <p-dialog
   [(visible)]="showDialog"
   [modal]="true"
   [style]="{width: '50rem', maxWidth: '90vw'}"
-  [header]="isEditMode ? 'Editar Línea' : 'Nueva Línea'"
+  [header]="isEditMode ? 'Editar Configuración de Correo' : 'Nueva Configuración de Correo'"
   [draggable]="false"
   [resizable]="false"
   [contentStyle]="{'padding': '1.5rem'}"
   [styleClass]="'config-dialog'"
   (onHide)="cerrarDialog()">
-  <app-linea-form
-    [linea]="selectedLinea"
+  <app-configuracion-correo-form
+    [configuracion]="selectedConfiguracion"
     [isEditMode]="isEditMode"
-    [plantas]="plantas"
-    (guardado)="onLineaGuardada()"
+    (guardado)="onConfiguracionGuardada()"
     (cancelado)="cerrarDialog()">
-  </app-linea-form>
+  </app-configuracion-correo-form>
 </p-dialog>
 
-<!-- Overlay Spinner para operaciones -->
 @if (processing) {
   <div class="overlay-spinner">
     <p-progressSpinner ariaLabel="loading"></p-progressSpinner>

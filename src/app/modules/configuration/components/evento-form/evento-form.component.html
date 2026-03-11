@@ -1,21 +1,6 @@
 <form (ngSubmit)="guardar()" class="config-form">
   <div class="formgrid grid">
     <div class="field col-12">
-      <label for="idPlanta">Planta</label>
-      <p-dropdown
-        id="idPlanta"
-        [(ngModel)]="formData.idPlanta"
-        name="idPlanta"
-        [options]="plantasOptions"
-        optionLabel="label"
-        optionValue="value"
-        [disabled]="loading"
-        placeholder="Seleccione una planta (opcional)"
-        appendTo="body"
-        styleClass="w-full"></p-dropdown>
-    </div>
-
-    <div class="field col-12">
       <label for="nombre">Nombre</label>
       <input
         id="nombre"
@@ -24,7 +9,7 @@
         [(ngModel)]="formData.nombre"
         name="nombre"
         [disabled]="loading"
-        placeholder="Ingrese el nombre del grupo (opcional)" />
+        placeholder="Nombre del evento (opcional)" />
     </div>
 
     <div class="field col-12">
@@ -36,7 +21,7 @@
         name="descripcion"
         [rows]="3"
         [disabled]="loading"
-        placeholder="Ingrese una descripción (opcional)"
+        placeholder="Descripción del evento (opcional)"
         [autoResize]="false"
         class="descripcion-textarea"></textarea>
     </div>

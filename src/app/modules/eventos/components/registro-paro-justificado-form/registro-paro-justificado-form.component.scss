@@ -1,0 +1,9 @@
+/*
+ * Estilos del formulario de justificación de paros
+ * Los estilos compartidos están disponibles globalmente desde: shared/styles/configuration-shared.styles.scss
+ */
+
+.descripcion-textarea {
+  resize: vertical;
+  min-height: 80px;
+}

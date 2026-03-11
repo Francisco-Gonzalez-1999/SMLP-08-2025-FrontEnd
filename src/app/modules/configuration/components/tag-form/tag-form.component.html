@@ -2,53 +2,69 @@
   <div class="formgrid grid">
     <div class="field col-12 md:col-6">
       <label for="idPlc">PLC <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="idPlc" 
-        [(ngModel)]="formData.idPlc" 
+      <p-dropdown
+        id="idPlc"
+        [(ngModel)]="formData.idPlc"
         name="idPlc"
-        [options]="plcsOptions" 
-        optionLabel="label" 
+        [options]="plcsOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione un PLC"
+        appendTo="body"
         styleClass="w-full"></p-dropdown>
     </div>
 
     <div class="field col-12 md:col-6">
       <label for="idLinea">Línea <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="idLinea" 
-        [(ngModel)]="formData.idLinea" 
+      <p-dropdown
+        id="idLinea"
+        [(ngModel)]="formData.idLinea"
         name="idLinea"
-        [options]="lineasOptions" 
-        optionLabel="label" 
+        [options]="lineasOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione una línea"
-        styleClass="w-full"></p-dropdown>
+        appendTo="body"
+        styleClass="w-full">
+        <ng-template pTemplate="selectedItem" let-option>
+          <div class="flex flex-column" *ngIf="option">
+            <span>{{ option.label }}</span>
+            <small class="text-color-secondary text-sm">{{ option.plantaNombre }}</small>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="item" let-option>
+          <div class="flex flex-column">
+            <span>{{ option.label }}</span>
+            <small class="text-color-secondary text-sm">{{ option.plantaNombre }}</small>
+          </div>
+        </ng-template>
+      </p-dropdown>
     </div>
 
     <div class="field col-12">
       <label for="idServidorOpcua">Servidor OPC UA <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="idServidorOpcua" 
-        [(ngModel)]="formData.idServidorOpcua" 
+      <p-dropdown
+        id="idServidorOpcua"
+        [(ngModel)]="formData.idServidorOpcua"
         name="idServidorOpcua"
-        [options]="servidoresOpcuaOptions" 
-        optionLabel="label" 
+        [options]="servidoresOpcuaOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione un servidor OPC UA"
+        appendTo="body"
         styleClass="w-full"></p-dropdown>
     </div>
 
     <div class="field col-12">
       <label for="nodeId">NodeId <span class="text-red-500">*</span></label>
-      <input 
-        id="nodeId" 
-        type="text" 
-        pInputText 
-        [(ngModel)]="formData.nodeId" 
+      <input
+        id="nodeId"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.nodeId"
         name="nodeId"
         required
         [disabled]="loading"
@@ -57,11 +73,11 @@
 
     <div class="field col-12">
       <label for="nombre">Nombre <span class="text-red-500">*</span></label>
-      <input 
-        id="nombre" 
-        type="text" 
-        pInputText 
-        [(ngModel)]="formData.nombre" 
+      <input
+        id="nombre"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.nombre"
         name="nombre"
         required
         [disabled]="loading"
@@ -70,39 +86,40 @@
 
     <div class="field col-12">
       <label for="descripcion">Descripción</label>
-      <textarea 
-        id="descripcion" 
-        pInputTextarea 
-        [(ngModel)]="formData.descripcion" 
+      <textarea
+        id="descripcion"
+        pInputTextarea
+        [(ngModel)]="formData.descripcion"
         name="descripcion"
         [rows]="3"
         [disabled]="loading"
-        placeholder="Ingrese una descripción (opcional)" 
+        placeholder="Ingrese una descripción (opcional)"
         [autoResize]="false"
         class="descripcion-textarea"></textarea>
     </div>
 
     <div class="field col-12 md:col-6">
       <label for="tipoDato">Tipo de Dato <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="tipoDato" 
-        [(ngModel)]="formData.tipoDato" 
+      <p-dropdown
+        id="tipoDato"
+        [(ngModel)]="formData.tipoDato"
         name="tipoDato"
-        [options]="tiposDatoOptions" 
-        optionLabel="label" 
+        [options]="tiposDatoOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione un tipo"
+        appendTo="body"
         styleClass="w-full"></p-dropdown>
     </div>
 
     <div class="field col-12 md:col-6">
       <label for="unidadMedida">Unidad de Medida</label>
-      <input 
-        id="unidadMedida" 
-        type="text" 
-        pInputText 
-        [(ngModel)]="formData.unidadMedida" 
+      <input
+        id="unidadMedida"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.unidadMedida"
         name="unidadMedida"
         [disabled]="loading"
         placeholder="Ej: °C, bar, etc. (opcional)" />
@@ -110,9 +127,9 @@
 
     <div class="field col-12 md:col-6">
       <label for="valorMin">Valor Mínimo</label>
-      <p-inputNumber 
-        id="valorMin" 
-        [(ngModel)]="formData.valorMin" 
+      <p-inputNumber
+        id="valorMin"
+        [(ngModel)]="formData.valorMin"
         name="valorMin"
         [disabled]="loading"
         placeholder="Valor mínimo (opcional)"
@@ -123,9 +140,9 @@
 
     <div class="field col-12 md:col-6">
       <label for="valorMax">Valor Máximo</label>
-      <p-inputNumber 
-        id="valorMax" 
-        [(ngModel)]="formData.valorMax" 
+      <p-inputNumber
+        id="valorMax"
+        [(ngModel)]="formData.valorMax"
         name="valorMax"
         [disabled]="loading"
         placeholder="Valor máximo (opcional)"
@@ -137,8 +154,8 @@
     <div class="field col-12" *ngIf="isEditMode">
       <label for="estaActivo">Estado</label>
       <div class="flex align-items-center gap-2">
-        <p-inputSwitch 
-          [(ngModel)]="formData.estaActivo" 
+        <p-inputSwitch
+          [(ngModel)]="formData.estaActivo"
           name="estaActivo"
           [disabled]="loading"></p-inputSwitch>
         <span>{{ formData.estaActivo ? 'Activo' : 'Inactivo' }}</span>
@@ -147,20 +164,20 @@
   </div>
 
   <div class="flex justify-content-end gap-2 mt-4">
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="button"
-      label="Cancelar" 
-      icon="pi pi-times" 
+      label="Cancelar"
+      icon="pi pi-times"
       class="p-button-text"
       (click)="cancelar()"
       [disabled]="loading"></button>
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="submit"
-      [label]="isEditMode ? 'Actualizar' : 'Crear'" 
+      [label]="isEditMode ? 'Actualizar' : 'Crear'"
       [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
       [class]="isEditMode ? 'p-button-warning' : 'p-button-success'"
       [disabled]="loading"

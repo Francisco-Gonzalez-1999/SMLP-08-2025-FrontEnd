@@ -1,0 +1,62 @@
+<form (ngSubmit)="guardar()" class="config-form">
+  <div class="formgrid grid">
+    <div class="field col-12">
+      <label for="causaRaiz">Causa Raíz</label>
+      <input
+        id="causaRaiz"
+        type="text"
+        pInputText
+        [(ngModel)]="causaRaiz"
+        name="causaRaiz"
+        [disabled]="loading"
+        placeholder="Indique la causa raíz del paro" />
+    </div>
+
+    <div class="field col-12">
+      <label for="subCausa">Subcausa</label>
+      <input
+        id="subCausa"
+        type="text"
+        pInputText
+        [(ngModel)]="subCausa"
+        name="subCausa"
+        [disabled]="loading"
+        placeholder="Subcausa (opcional)" />
+    </div>
+
+    <div class="field col-12">
+      <label for="comentarios">Comentarios</label>
+      <textarea
+        id="comentarios"
+        pInputTextarea
+        [(ngModel)]="comentarios"
+        name="comentarios"
+        [rows]="4"
+        [disabled]="loading"
+        placeholder="Comentarios adicionales (opcional)"
+        [autoResize]="false"
+        class="descripcion-textarea"></textarea>
+    </div>
+  </div>
+
+  <div class="flex justify-content-end gap-2 mt-4">
+    <button
+      pButton
+      pRipple
+      type="button"
+      label="Cancelar"
+      icon="pi pi-times"
+      class="p-button-text"
+      (click)="cancelar()"
+      [disabled]="loading"></button>
+    <button
+      pButton
+      pRipple
+      type="submit"
+      label="Actualizar"
+      icon="pi pi-check"
+      class="p-button-warning"
+      [disabled]="loading"
+      [loading]="loading"></button>
+  </div>
+</form>

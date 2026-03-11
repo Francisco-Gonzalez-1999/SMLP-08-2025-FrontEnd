@@ -1,0 +1,195 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="registros-paros-justificados-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-calendar-plus"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Paros Justificados</h2>
+        <p class="m-0 mt-1">Gestiona las justificaciones de los paros registrados</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="registros.length > 0">
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarRegistros()"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  @if (registros.length > 0) {
+    <div class="table-section">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Paros Justificados</h3>
+            <span class="section-subtitle">{{ registros.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="registros"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'tagNombre', 'estadoParoNombre', 'eventoNombre', 'causaRaiz', 'subCausa', 'comentarios']"
+        styleClass="p-datatable-sm config-table"
+        [scrollable]="true"
+        scrollHeight="58vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idRegistroParo" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idRegistroParo"></p-sortIcon>
+            </th>
+            <th pSortableColumn="lineaNombre" style="min-width: 120px">Línea</th>
+            <th pSortableColumn="plantaNombre" style="min-width: 120px">Planta</th>
+            <th pSortableColumn="tagNombre" style="min-width: 120px">Tag</th>
+            <th pSortableColumn="estadoParoNombre" style="min-width: 130px">Estado Paro</th>
+            <th pSortableColumn="eventoNombre" style="min-width: 130px">Evento</th>
+            <th pSortableColumn="fechaRegistro" style="min-width: 110px">Fecha</th>
+            <th style="min-width: 90px">Hora Inicio</th>
+            <th style="min-width: 90px">Hora Fin</th>
+            <th style="min-width: 90px">Duración</th>
+            <th pSortableColumn="causaRaiz" style="min-width: 140px">Causa Raíz</th>
+            <th pSortableColumn="subCausa" style="min-width: 120px">Subcausa</th>
+            <th pSortableColumn="comentarios" style="min-width: 160px">Comentarios</th>
+            <th pSortableColumn="usuarioUltimaMod" style="min-width: 120px">Usuario</th>
+            <th style="width: 150px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-registro>
+          <tr>
+            <td><span class="id-chip">#{{ registro.idRegistroParo }}</span></td>
+            <td><span class="nombre-text">{{ registro.lineaNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.plantaNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.tagNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.estadoParoNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.eventoNombre || '-' }}</span></td>
+            <td><span class="fecha-text">{{ registro.fechaRegistro | date:'dd/MM/yyyy' }}</span></td>
+            <td><span class="fecha-text">{{ registro.horaInicio }}</span></td>
+            <td><span class="fecha-text">{{ registro.horaFin || '-' }}</span></td>
+            <td><span class="fecha-text">{{ registro.duracionMinutos != null ? registro.duracionMinutos + ' min' : '-' }}</span></td>
+            <td><span class="descripcion-text">{{ registro.causaRaiz || '-' }}</span></td>
+            <td><span class="descripcion-text">{{ registro.subCausa || '-' }}</span></td>
+            <td><span class="descripcion-text">{{ registro.comentarios || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.usuarioUltimaMod || registro.usuarioRegistra || '-' }}</span></td>
+            <td>
+              <div class="flex align-items-center gap-2">
+                <button
+                  pButton
+                  pRipple
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-primary"
+                  (click)="abrirDialogEditar(registro)"
+                  pTooltip="Editar justificación"
+                  tooltipPosition="top"
+                  styleClass="p-button-sm">
+                </button>
+                <p-toggleButton
+                  [(ngModel)]="registro.estaActivo"
+                  [onLabel]="'Activo'"
+                  [offLabel]="'Inactivo'"
+                  (onChange)="cambiarEstado(registro)"
+                  [disabled]="processing"
+                  styleClass="w-9rem">
+                </p-toggleButton>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="15" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (registros.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-calendar-plus"></i>
+        </div>
+        <h3>No hay registros de paros justificados</h3>
+        <p>No se encontraron registros activos de paros justificados en el sistema.</p>
+        <p-button
+          icon="pi pi-refresh"
+          label="Actualizar"
+          [outlined]="true"
+          (click)="cargarRegistros()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner ariaLabel="loading" [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <span class="loading-text">Cargando registros...</span>
+    </div>
+  }
+</div>
+
+<!-- Dialog -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  [style]="{width: '45rem', maxWidth: '90vw'}"
+  header="Editar justificación de paro"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialog()">
+  <app-registro-paro-justificado-form
+    [registro]="selectedRegistro"
+    (guardado)="onRegistroGuardado()"
+    (cancelado)="cerrarDialog()">
+  </app-registro-paro-justificado-form>
+</p-dialog>
+
+@if (processing) {
+  <div class="overlay-spinner">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+}

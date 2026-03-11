@@ -2,25 +2,26 @@
   <div class="formgrid grid">
     <div class="field col-12">
       <label for="idPlanta">Planta <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="idPlanta" 
-        [(ngModel)]="formData.idPlanta" 
+      <p-dropdown
+        id="idPlanta"
+        [(ngModel)]="formData.idPlanta"
         name="idPlanta"
-        [options]="plantasOptions" 
-        optionLabel="label" 
+        [options]="plantasOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione una planta"
+        appendTo="body"
         styleClass="w-full"></p-dropdown>
     </div>
 
     <div class="field col-12">
       <label for="nombre">Nombre <span class="text-red-500">*</span></label>
-      <input 
-        id="nombre" 
-        type="text" 
-        pInputText 
-        [(ngModel)]="formData.nombre" 
+      <input
+        id="nombre"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.nombre"
         name="nombre"
         required
         [disabled]="loading"
@@ -29,14 +30,14 @@
 
     <div class="field col-12">
       <label for="descripcion">Descripción</label>
-      <textarea 
-        id="descripcion" 
-        pInputTextarea 
-        [(ngModel)]="formData.descripcion" 
+      <textarea
+        id="descripcion"
+        pInputTextarea
+        [(ngModel)]="formData.descripcion"
         name="descripcion"
         [rows]="3"
         [disabled]="loading"
-        placeholder="Ingrese una descripción (opcional)" 
+        placeholder="Ingrese una descripción (opcional)"
         [autoResize]="false"
         class="descripcion-textarea"></textarea>
     </div>
@@ -44,8 +45,8 @@
     <div class="field col-12" *ngIf="isEditMode">
       <label for="estaActivo">Estado</label>
       <div class="flex align-items-center gap-2">
-        <p-inputSwitch 
-          [(ngModel)]="formData.estaActivo" 
+        <p-inputSwitch
+          [(ngModel)]="formData.estaActivo"
           name="estaActivo"
           [disabled]="loading"></p-inputSwitch>
         <span>{{ formData.estaActivo ? 'Activo' : 'Inactivo' }}</span>
@@ -54,20 +55,20 @@
   </div>
 
   <div class="flex justify-content-end gap-2 mt-4">
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="button"
-      label="Cancelar" 
-      icon="pi pi-times" 
+      label="Cancelar"
+      icon="pi pi-times"
       class="p-button-text"
       (click)="cancelar()"
       [disabled]="loading"></button>
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="submit"
-      [label]="isEditMode ? 'Actualizar' : 'Crear'" 
+      [label]="isEditMode ? 'Actualizar' : 'Crear'"
       [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
       [class]="isEditMode ? 'p-button-warning' : 'p-button-success'"
       [disabled]="loading"

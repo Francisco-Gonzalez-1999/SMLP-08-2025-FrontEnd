@@ -8,6 +8,9 @@ import { ServidoresOpcuaListComponent } from './pages/servidores-opcua-list/serv
 import { GruposTagsListComponent } from './pages/grupos-tags-list/grupos-tags-list.component';
 import { TagsListComponent } from './pages/tags-list/tags-list.component';
 import { TagsGruposListComponent } from './pages/tags-grupos-list/tags-grupos-list.component';
+import { ConfiguracionCorreosListComponent } from './pages/configuracion-correos-list/configuracion-correos-list.component';
+import { EventosListComponent } from './pages/eventos-list/eventos-list.component';
+import { EstadosParosListComponent } from './pages/estados-paros-list/estados-paros-list.component';
 
 export const configurationRoutes: Routes = [
   {
@@ -50,5 +53,17 @@ export const configurationRoutes: Routes = [
   {
     path: 'tags-grupos',
     component: TagsGruposListComponent
+  },
+  {
+    path: 'configuracion-correos',
+    component: ConfiguracionCorreosListComponent
+  },
+  {
+    path: 'eventos',
+    component: EventosListComponent
+  },
+  {
+    path: 'estados-paro',
+    component: EstadosParosListComponent
   }
 ];

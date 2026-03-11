@@ -8,8 +8,21 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
+        path: '',
+        redirectTo: 'configuration',
+        pathMatch: 'full'
+      },
+      {
         path: 'configuration',
         loadChildren: () => import('./modules/configuration/configuration.routing').then(m => m.configurationRoutes)
+      },
+      {
+        path: 'lecturas',
+        loadChildren: () => import('./modules/lecturas/lecturas.routing').then(m => m.lecturasRoutes)
+      },
+      {
+        path: 'eventos',
+        loadChildren: () => import('./modules/eventos/eventos.routing').then(m => m.eventosRoutes)
       }
     ]
   },

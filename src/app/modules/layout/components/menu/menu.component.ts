@@ -23,6 +23,20 @@ export class MenuComponent implements OnInit {
   ngOnInit() {
     this.model = [
         {
+          label: 'Lecturas',
+          icon: 'pi pi-fw pi-chart-line',
+          items: [
+            { label: 'Estado de Líneas', icon: 'pi pi-fw pi-list', routerLink: ['/lecturas/estados-lineas'] }
+          ]
+        },
+        {
+          label: 'Eventos',
+          icon: 'pi pi-fw pi-calendar-plus',
+          items: [
+            { label: 'Paros Justificados', icon: 'pi pi-fw pi-book', routerLink: ['/eventos/paros-justificados'] }
+          ]
+        },
+        {
           label: 'Configuración',
           icon: 'pi pi-fw pi-cog',
           items: [
@@ -34,7 +48,10 @@ export class MenuComponent implements OnInit {
             { label: 'Servidores OPC UA', icon: 'pi pi-fw pi-cloud', routerLink: ['/configuration/servidores-opcua'] },
             { label: 'Grupos de Tags', icon: 'pi pi-fw pi-tags', routerLink: ['/configuration/grupos-tags'] },
             { label: 'Tags', icon: 'pi pi-fw pi-tag', routerLink: ['/configuration/tags'] },
-            { label: 'Tags-Grupos', icon: 'pi pi-fw pi-link', routerLink: ['/configuration/tags-grupos'] }
+            { label: 'Tags-Grupos', icon: 'pi pi-fw pi-link', routerLink: ['/configuration/tags-grupos'] },
+            { label: 'Config. Correos', icon: 'pi pi-fw pi-envelope', routerLink: ['/configuration/configuracion-correos'] },
+            { label: 'Eventos', icon: 'pi pi-fw pi-calendar', routerLink: ['/configuration/eventos'] },
+            { label: 'Estados de Paro', icon: 'pi pi-fw pi-stop-circle', routerLink: ['/configuration/estados-paro'] }
           ]
         }
 

@@ -1,18 +1,16 @@
 <form (ngSubmit)="guardar()" class="config-form">
   <div class="formgrid grid">
     <div class="field col-12">
-      <label for="idPlanta">Planta</label>
-      <p-dropdown
-        id="idPlanta"
-        [(ngModel)]="formData.idPlanta"
-        name="idPlanta"
-        [options]="plantasOptions"
-        optionLabel="label"
-        optionValue="value"
+      <label for="tipoConfiguracion">Tipo de Configuración <span class="text-red-500">*</span></label>
+      <input
+        id="tipoConfiguracion"
+        type="text"
+        pInputText
+        [(ngModel)]="formData.tipoConfiguracion"
+        name="tipoConfiguracion"
+        required
         [disabled]="loading"
-        placeholder="Seleccione una planta (opcional)"
-        appendTo="body"
-        styleClass="w-full"></p-dropdown>
+        placeholder="Ej: Alertas, Notificaciones" />
     </div>
 
     <div class="field col-12">
@@ -24,21 +22,20 @@
         [(ngModel)]="formData.nombre"
         name="nombre"
         [disabled]="loading"
-        placeholder="Ingrese el nombre del grupo (opcional)" />
+        placeholder="Nombre del destinatario (opcional)" />
     </div>
 
     <div class="field col-12">
-      <label for="descripcion">Descripción</label>
-      <textarea
-        id="descripcion"
-        pInputTextarea
-        [(ngModel)]="formData.descripcion"
-        name="descripcion"
-        [rows]="3"
+      <label for="email">Email <span class="text-red-500">*</span></label>
+      <input
+        id="email"
+        type="email"
+        pInputText
+        [(ngModel)]="formData.email"
+        name="email"
+        required
         [disabled]="loading"
-        placeholder="Ingrese una descripción (opcional)"
-        [autoResize]="false"
-        class="descripcion-textarea"></textarea>
+        placeholder="correo@ejemplo.com" />
     </div>
 
     <div class="field col-12" *ngIf="isEditMode">

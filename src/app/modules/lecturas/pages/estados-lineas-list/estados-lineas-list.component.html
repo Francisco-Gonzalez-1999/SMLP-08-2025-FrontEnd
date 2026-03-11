@@ -1,0 +1,150 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="estados-lineas-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-chart-line"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Estado Actual de Líneas</h2>
+        <p class="m-0 mt-1">Consulta el estado en tiempo real de las líneas de producción</p>
+      </div>
+    </div>
+    <div class="header-actions" *ngIf="estadosLineas.length > 0">
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarEstadosLineas()"
+        [disabled]="loading"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  @if (estadosLineas.length > 0) {
+    <div class="table-section">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Estados</h3>
+            <span class="section-subtitle">{{ estadosLineas.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="estadosLineas"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'tagNombre']"
+        styleClass="p-datatable-sm config-table"
+        [scrollable]="true"
+        scrollHeight="58vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idEstadoLineaActual" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idEstadoLineaActual"></p-sortIcon>
+            </th>
+            <th pSortableColumn="lineaNombre" style="min-width: 160px">
+              Línea <p-sortIcon field="lineaNombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="plantaNombre" style="min-width: 160px">
+              Planta <p-sortIcon field="plantaNombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="tagNombre" style="min-width: 160px">
+              Tag <p-sortIcon field="tagNombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="estaDetenida" style="min-width: 120px; width: 120px">
+              Estado <p-sortIcon field="estaDetenida"></p-sortIcon>
+            </th>
+            <th pSortableColumn="ultimoCambio" style="min-width: 160px">
+              Último cambio <p-sortIcon field="ultimoCambio"></p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-estado>
+          <tr>
+            <td><span class="id-chip">#{{ estado.idEstadoLineaActual }}</span></td>
+            <td><span class="nombre-text">{{ estado.lineaNombre || '-' }}</span></td>
+            <td><span class="descripcion-text">{{ estado.plantaNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ estado.tagNombre || '-' }}</span></td>
+            <td class="text-center">
+              <p-tag
+                [value]="getEstadoTexto(estado.estaDetenida)"
+                [severity]="getSeverity(estado.estaDetenida)"
+                styleClass="estatus-tag">
+              </p-tag>
+            </td>
+            <td class="text-center">
+              <span class="fecha-text">{{ estado.ultimoCambio | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (estadosLineas.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-chart-line"></i>
+        </div>
+        <h3>No hay estados de líneas disponibles</h3>
+        <p>No se encontraron registros de estado actual de líneas.</p>
+        <p-button
+          icon="pi pi-refresh"
+          label="Recargar"
+          [outlined]="true"
+          (click)="cargarEstadosLineas()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner ariaLabel="loading" [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <span class="loading-text">Cargando estados de líneas...</span>
+    </div>
+  }
+</div>

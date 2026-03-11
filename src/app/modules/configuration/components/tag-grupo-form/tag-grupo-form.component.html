@@ -2,37 +2,39 @@
   <div class="formgrid grid">
     <div class="field col-12">
       <label for="idTag">Tag <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="idTag" 
-        [(ngModel)]="formData.idTag" 
+      <p-dropdown
+        id="idTag"
+        [(ngModel)]="formData.idTag"
         name="idTag"
-        [options]="tagsOptions" 
-        optionLabel="label" 
+        [options]="tagsOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione un tag"
+        appendTo="body"
         styleClass="w-full"></p-dropdown>
     </div>
 
     <div class="field col-12">
       <label for="idGrupoTag">Grupo de Tags <span class="text-red-500">*</span></label>
-      <p-dropdown 
-        id="idGrupoTag" 
-        [(ngModel)]="formData.idGrupoTag" 
+      <p-dropdown
+        id="idGrupoTag"
+        [(ngModel)]="formData.idGrupoTag"
         name="idGrupoTag"
-        [options]="gruposTagsOptions" 
-        optionLabel="label" 
+        [options]="gruposTagsOptions"
+        optionLabel="label"
         optionValue="value"
         [disabled]="loading"
         placeholder="Seleccione un grupo de tags"
+        appendTo="body"
         styleClass="w-full"></p-dropdown>
     </div>
 
     <div class="field col-12" *ngIf="isEditMode">
       <label for="estaActivo">Estado</label>
       <div class="flex align-items-center gap-2">
-        <p-inputSwitch 
-          [(ngModel)]="formData.estaActivo" 
+        <p-inputSwitch
+          [(ngModel)]="formData.estaActivo"
           name="estaActivo"
           [disabled]="loading"></p-inputSwitch>
         <span>{{ formData.estaActivo ? 'Activo' : 'Inactivo' }}</span>
@@ -41,20 +43,20 @@
   </div>
 
   <div class="flex justify-content-end gap-2 mt-4">
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="button"
-      label="Cancelar" 
-      icon="pi pi-times" 
+      label="Cancelar"
+      icon="pi pi-times"
       class="p-button-text"
       (click)="cancelar()"
       [disabled]="loading"></button>
-    <button 
-      pButton 
-      pRipple 
+    <button
+      pButton
+      pRipple
       type="submit"
-      [label]="isEditMode ? 'Actualizar' : 'Crear'" 
+      [label]="isEditMode ? 'Actualizar' : 'Crear'"
       [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
       [class]="isEditMode ? 'p-button-warning' : 'p-button-success'"
       [disabled]="loading"

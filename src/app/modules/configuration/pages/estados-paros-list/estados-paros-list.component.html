@@ -1,30 +1,30 @@
 <p-toast position="top-right"></p-toast>
 <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
 
-<div class="lineas-container">
+<div class="estados-paros-container">
 
   <!-- Header -->
   <div class="page-header">
     <div class="header-content">
       <div class="header-icon">
-        <i class="pi pi-sitemap"></i>
+        <i class="pi pi-stop-circle"></i>
       </div>
       <div>
-        <h2 class="m-0">Administración de Líneas</h2>
-        <p class="m-0 mt-1">Gestiona las líneas de producción del sistema</p>
+        <h2 class="m-0">Estados de Paro</h2>
+        <p class="m-0 mt-1">Gestiona los estados para clasificar los paros de línea</p>
       </div>
     </div>
-    <div class="header-actions" *ngIf="lineas.length > 0">
+    <div class="header-actions" *ngIf="estadosParo.length > 0">
       <p-button
         icon="pi pi-refresh"
         label="Actualizar"
         [text]="true"
-        (click)="cargarLineas()"
+        (click)="cargarEstadosParo()"
         styleClass="p-button-sm">
       </p-button>
       <p-button
         icon="pi pi-plus"
-        label="Nueva Línea"
+        label="Nuevo Estado"
         [text]="true"
         severity="success"
         (click)="abrirDialogCrear()"
@@ -34,17 +34,16 @@
   </div>
 
   <!-- Table Section -->
-  @if (lineas.length > 0) {
+  @if (estadosParo.length > 0) {
     <div class="table-section">
-      <!-- Section Header -->
       <div class="section-header">
         <div class="section-header-left">
           <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
             <i class="pi pi-table"></i>
           </div>
           <div>
-            <h3 class="section-title">Listado de Líneas</h3>
-            <span class="section-subtitle">{{ lineas.length }} registro(s) encontrado(s)</span>
+            <h3 class="section-title">Listado de Estados de Paro</h3>
+            <span class="section-subtitle">{{ estadosParo.length }} registro(s) encontrado(s)</span>
           </div>
         </div>
         <div class="section-header-right">
@@ -63,94 +62,54 @@
 
       <p-table
         #dt
-        [value]="lineas"
+        [value]="estadosParo"
         [paginator]="true"
         [rows]="15"
         [rowsPerPageOptions]="[10, 15, 25, 50]"
         [tableStyle]="{ 'min-width': '100%' }"
         [globalFilterFields]="['nombre', 'descripcion']"
-        styleClass="p-datatable-sm"
+        styleClass="p-datatable-sm config-table"
         [scrollable]="true"
         scrollHeight="58vh">
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="idLinea" style="min-width: 70px; width: 70px">
-              ID <p-sortIcon field="idLinea"></p-sortIcon>
+            <th pSortableColumn="idEstadoParo" style="min-width: 70px; width: 70px">
+              ID <p-sortIcon field="idEstadoParo"></p-sortIcon>
             </th>
-            <th pSortableColumn="idPlanta" style="min-width: 150px">
-              Planta
-              <p-sortIcon field="idPlanta"></p-sortIcon>
-              <p-columnFilter
-                type="text"
-                field="idPlanta"
-                display="menu"
-                [showMatchModes]="false"
-                [showAddButton]="false"
-                [showOperator]="false">
-                <ng-template pTemplate="filter" let-filter="filterCallback">
-                  <p-dropdown
-                    [options]="getUniquePlanta()"
-                    (onChange)="filter($any($event).value)"
-                    [showClear]="true"
-                    placeholder="Todos"
-                    appendTo="body"
-                    styleClass="w-full column-filter-dropdown">
-                  </p-dropdown>
-                </ng-template>
-              </p-columnFilter>
+            <th pSortableColumn="nombre" style="min-width: 180px">
+              Nombre <p-sortIcon field="nombre"></p-sortIcon>
             </th>
-            <th pSortableColumn="nombre" style="min-width: 200px">
-              Nombre
-              <p-sortIcon field="nombre"></p-sortIcon>
+            <th pSortableColumn="descripcion" style="min-width: 220px">
+              Descripción <p-sortIcon field="descripcion"></p-sortIcon>
             </th>
-            <th pSortableColumn="descripcion" style="min-width: 250px">
-              Descripción
-              <p-sortIcon field="descripcion"></p-sortIcon>
-            </th>
+            <th style="min-width: 100px; width: 100px">Color</th>
             <th pSortableColumn="estaActivo" style="min-width: 110px; width: 110px">
-              Estado
-              <p-sortIcon field="estaActivo"></p-sortIcon>
-              <p-columnFilter
-                type="boolean"
-                field="estaActivo"
-                display="menu"
-                [showMatchModes]="false"
-                [showAddButton]="false"
-                [showOperator]="false">
-              </p-columnFilter>
+              Estado <p-sortIcon field="estaActivo"></p-sortIcon>
             </th>
             <th pSortableColumn="fechaCreacion" style="min-width: 140px">
-              Fecha Creación
-              <p-sortIcon field="fechaCreacion"></p-sortIcon>
+              Fecha Creación <p-sortIcon field="fechaCreacion"></p-sortIcon>
             </th>
             <th style="width: 150px">Acciones</th>
           </tr>
         </ng-template>
 
-        <ng-template pTemplate="body" let-linea>
+        <ng-template pTemplate="body" let-estado>
           <tr>
+            <td><span class="id-chip">#{{ estado.idEstadoParo }}</span></td>
+            <td><span class="nombre-text">{{ estado.nombre }}</span></td>
+            <td><span class="descripcion-text">{{ estado.descripcion || '-' }}</span></td>
             <td>
-              <span class="id-chip">#{{ linea.idLinea }}</span>
-            </td>
-            <td>
-              <span class="nombre-text">{{ getNombrePlanta(linea.idPlanta) }}</span>
-            </td>
-            <td>
-              <span class="nombre-text">{{ linea.nombre }}</span>
-            </td>
-            <td>
-              <span class="descripcion-text">{{ linea.descripcion || '-' }}</span>
+              <div class="color-cell">
+                <div class="color-swatch" [ngStyle]="getColorStyle(estado.colorHex)"></div>
+                <span class="color-hex-text">{{ estado.colorHex || '-' }}</span>
+              </div>
             </td>
             <td class="text-center">
-              <p-tag
-                [value]="getEstadoTexto(linea.estaActivo)"
-                [severity]="getSeverity(linea.estaActivo)"
-                styleClass="estatus-tag">
-              </p-tag>
+              <p-tag [value]="getEstadoTexto(estado.estaActivo)" [severity]="getSeverity(estado.estaActivo)" styleClass="estatus-tag"></p-tag>
             </td>
             <td class="text-center">
-              <span class="fecha-text">{{ linea.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="fecha-text">{{ estado.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
             </td>
             <td>
               <div class="flex align-items-center gap-2">
@@ -159,16 +118,16 @@
                   pRipple
                   icon="pi pi-pencil"
                   class="p-button-rounded p-button-text p-button-primary"
-                  (click)="abrirDialogEditar(linea)"
+                  (click)="abrirDialogEditar(estado)"
                   pTooltip="Editar"
                   tooltipPosition="top"
                   styleClass="p-button-sm">
                 </button>
                 <p-toggleButton
-                  [(ngModel)]="linea.estaActivo"
+                  [(ngModel)]="estado.estaActivo"
                   [onLabel]="'Activo'"
                   [offLabel]="'Inactivo'"
-                  (onChange)="cambiarEstado(linea)"
+                  (onChange)="cambiarEstado(estado)"
                   [disabled]="processing"
                   styleClass="w-9rem">
                 </p-toggleButton>
@@ -192,17 +151,17 @@
   }
 
   <!-- Empty State -->
-  @if (lineas.length === 0 && !loading) {
+  @if (estadosParo.length === 0 && !loading) {
     <div class="empty-state">
       <div class="empty-state-content">
         <div class="empty-icon">
-          <i class="pi pi-sitemap"></i>
+          <i class="pi pi-stop-circle"></i>
         </div>
-        <h3>No se encontraron Líneas</h3>
-        <p>Actualmente no hay líneas registradas en el sistema.</p>
+        <h3>No se encontraron Estados de Paro</h3>
+        <p>Actualmente no hay estados de paro registrados en el sistema.</p>
         <p-button
           icon="pi pi-plus"
-          label="Crear Línea"
+          label="Crear Estado"
           [outlined]="true"
           (click)="abrirDialogCrear()"
           styleClass="p-button-sm mt-3">
@@ -214,38 +173,31 @@
   <!-- Loading -->
   @if (loading) {
     <div class="loading-section">
-      <p-progressSpinner
-        ariaLabel="loading"
-        [style]="{ width: '50px', height: '50px' }"
-        strokeWidth="4">
-      </p-progressSpinner>
-      <span class="loading-text">Cargando Líneas...</span>
+      <p-progressSpinner ariaLabel="loading" [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <span class="loading-text">Cargando estados de paro...</span>
     </div>
   }
-
 </div>
 
-<!-- Dialog para crear/editar -->
+<!-- Dialog -->
 <p-dialog
   [(visible)]="showDialog"
   [modal]="true"
   [style]="{width: '50rem', maxWidth: '90vw'}"
-  [header]="isEditMode ? 'Editar Línea' : 'Nueva Línea'"
+  [header]="isEditMode ? 'Editar Estado de Paro' : 'Nuevo Estado de Paro'"
   [draggable]="false"
   [resizable]="false"
   [contentStyle]="{'padding': '1.5rem'}"
   [styleClass]="'config-dialog'"
   (onHide)="cerrarDialog()">
-  <app-linea-form
-    [linea]="selectedLinea"
+  <app-estado-paro-form
+    [estadoParo]="selectedEstadoParo"
     [isEditMode]="isEditMode"
-    [plantas]="plantas"
-    (guardado)="onLineaGuardada()"
+    (guardado)="onEstadoParoGuardado()"
     (cancelado)="cerrarDialog()">
-  </app-linea-form>
+  </app-estado-paro-form>
 </p-dialog>
 
-<!-- Overlay Spinner para operaciones -->
 @if (processing) {
   <div class="overlay-spinner">
     <p-progressSpinner ariaLabel="loading"></p-progressSpinner>

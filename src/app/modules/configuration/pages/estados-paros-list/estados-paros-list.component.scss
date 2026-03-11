@@ -1,0 +1,26 @@
+/*
+ * Estilos específicos de Estados de Paro
+ * Los estilos compartidos están disponibles globalmente desde: shared/styles/configuration-shared.styles.scss
+ */
+
+.estados-paros-container {
+  .color-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .color-hex-text {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-family: monospace;
+    }
+  }
+}

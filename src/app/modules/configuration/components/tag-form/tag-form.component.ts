@@ -16,10 +16,12 @@ import { ToastModule } from 'primeng/toast';
 import { CatTagsService } from '../../services/cat-tags.service';
 import { CatPlcsService } from '../../services/cat-plcs.service';
 import { CatLineasService } from '../../services/cat-lineas.service';
+import { CatPlantasService } from '../../services/cat-plantas.service';
 import { CatServidoresOpcuaService } from '../../services/cat-servidores-opcua.service';
 import { CatTagDTO } from '../../interfaces/cat-tag-dto.interface';
 import { CatPlcDTO } from '../../interfaces/cat-plc-dto.interface';
 import { CatLineaDTO } from '../../interfaces/cat-linea-dto.interface';
+import { CatPlantaDTO } from '../../interfaces/cat-planta-dto.interface';
 import { CatServidoresOpcuaDTO } from '../../interfaces/cat-servidores-opcua-dto.interface';
 import { ApiResponse } from '../../interfaces/api-response.interface';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -66,10 +68,11 @@ export class TagFormComponent implements OnInit, OnChanges {
 
   plcs: CatPlcDTO[] = [];
   lineas: CatLineaDTO[] = [];
+  plantas: CatPlantaDTO[] = [];
   servidoresOpcua: CatServidoresOpcuaDTO[] = [];
 
   plcsOptions: any[] = [];
-  lineasOptions: any[] = [];
+  lineasOptions: { label: string; value: number; plantaNombre: string }[] = [];
   servidoresOpcuaOptions: any[] = [];
   tiposDatoOptions = [
     { label: 'Boolean', value: 'Boolean' },
@@ -92,6 +95,7 @@ export class TagFormComponent implements OnInit, OnChanges {
     private catTagsService: CatTagsService,
     private catPlcsService: CatPlcsService,
     private catLineasService: CatLineasService,
+    private catPlantasService: CatPlantasService,
     private catServidoresOpcuaService: CatServidoresOpcuaService,
     private toastService: ToastService
   ) { }
@@ -105,6 +109,21 @@ export class TagFormComponent implements OnInit, OnChanges {
     if (changes['tag'] && !changes['tag'].firstChange) {
       this.cargarDatos();
     }
+  }
+
+  actualizarLineasOptions() {
+    if (this.lineas.length === 0) {
+      this.lineasOptions = [];
+      return;
+    }
+    this.lineasOptions = this.lineas.map(l => {
+      const planta = this.plantas.find(p => p.idPlanta === l.idPlanta);
+      return {
+        label: l.nombre,
+        value: l.idLinea,
+        plantaNombre: planta?.nombre ?? `Planta #${l.idPlanta}`
+      };
+    });
   }
 
   cargarDatosRelacionados() {
@@ -121,15 +140,22 @@ export class TagFormComponent implements OnInit, OnChanges {
       }
     });
 
+    // Cargar Plantas (para mostrar junto a cada línea)
+    this.catPlantasService.obtenerTodasLasPlantas().subscribe({
+      next: (response: ApiResponse<CatPlantaDTO[]>) => {
+        if (response.statusCode === 200 && response.data) {
+          this.plantas = response.data;
+          this.actualizarLineasOptions();
+        }
+      }
+    });
+
     // Cargar Líneas
     this.catLineasService.obtenerTodasLasLineas().subscribe({
       next: (response: ApiResponse<CatLineaDTO[]>) => {
         if (response.statusCode === 200 && response.data) {
           this.lineas = response.data;
-          this.lineasOptions = this.lineas.map(l => ({
-            label: l.nombre,
-            value: l.idLinea
-          }));
+          this.actualizarLineasOptions();
         }
       }
     });
