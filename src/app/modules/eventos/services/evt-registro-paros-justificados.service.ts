@@ -5,7 +5,8 @@ import { ApiResponse } from '../interfaces/api-response.interface';
 import {
   EvtRegistroParosJustificadoDTO,
   ActualizarRegistroParoJustificadoDTO,
-  ActivarDesactivarRegistroParoJustificadoDTO
+  ActivarDesactivarRegistroParoJustificadoDTO,
+  CrearRegistroParoManualDTO
 } from '../interfaces/evt-registro-paros-justificado-dto.interface';
 
 @Injectable({
@@ -32,6 +33,13 @@ export class EvtRegistroParosJustificadosService {
   activarDesactivarRegistroParoJustificado(dto: ActivarDesactivarRegistroParoJustificadoDTO): Observable<ApiResponse<EvtRegistroParosJustificadoDTO>> {
     return this.httpClientService.post<ApiResponse<EvtRegistroParosJustificadoDTO>>(
       `${this.endpoint}/ActivarDesactivarRegistroParoJustificado`,
+      dto
+    );
+  }
+
+  crearRegistroParoManual(dto: CrearRegistroParoManualDTO): Observable<ApiResponse<EvtRegistroParosJustificadoDTO>> {
+    return this.httpClientService.post<ApiResponse<EvtRegistroParosJustificadoDTO>>(
+      `${this.endpoint}/CrearRegistroParoManual`,
       dto
     );
   }

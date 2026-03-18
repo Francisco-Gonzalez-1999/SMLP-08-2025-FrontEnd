@@ -6,3 +6,9 @@
 .registros-paros-justificados-container {
   // Estilos adicionales si se necesitan
 }
+
+.paro-manual-form {
+  .field-label .required {
+    color: var(--p-danger-400, #f87171);
+  }
+}

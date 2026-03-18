@@ -39,3 +39,17 @@ export interface ActivarDesactivarRegistroParoJustificadoDTO {
   estaActivo: boolean;
   usuarioUltimaMod: string | null;
 }
+
+export interface CrearRegistroParoManualDTO {
+  idLinea: number;
+  idPlanta: number;
+  fechaRegistro: string; // YYYY-MM-DD
+  horaInicio: string;    // ISO datetime
+  horaFin?: string | null; // ISO datetime, opcional
+  idEstadoParo?: number | null;
+  idEvento?: number | null;
+  causaRaiz?: string | null;
+  subCausa?: string | null;
+  comentarios?: string | null;
+  usuarioRegistra: string;
+}

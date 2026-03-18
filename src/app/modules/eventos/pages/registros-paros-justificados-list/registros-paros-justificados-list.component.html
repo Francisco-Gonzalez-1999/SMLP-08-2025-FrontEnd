@@ -14,14 +14,24 @@
         <p class="m-0 mt-1">Gestiona las justificaciones de los paros registrados</p>
       </div>
     </div>
-    <div class="header-actions" *ngIf="registros.length > 0">
+    <div class="header-actions">
       <p-button
-        icon="pi pi-refresh"
-        label="Actualizar"
-        [text]="true"
-        (click)="cargarRegistros()"
+        icon="pi pi-plus"
+        label="Agregar paro manual"
+        severity="secondary"
+        (click)="abrirDialogParoManual()"
+        [disabled]="loading"
         styleClass="p-button-sm">
       </p-button>
+      @if (registros.length > 0) {
+        <p-button
+          icon="pi pi-refresh"
+          label="Actualizar"
+          [text]="true"
+          (click)="cargarRegistros()"
+          styleClass="p-button-sm">
+        </p-button>
+      }
     </div>
   </div>
 
@@ -59,7 +69,7 @@
         [rows]="15"
         [rowsPerPageOptions]="[10, 15, 25, 50]"
         [tableStyle]="{ 'min-width': '100%' }"
-        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'tagNombre', 'estadoParoNombre', 'causaRaiz', 'subCausa', 'comentarios']"
+        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'estadoParoNombre', 'causaRaiz', 'subCausa', 'comentarios']"
         styleClass="p-datatable-sm config-table"
         [scrollable]="true"
         scrollHeight="58vh">
@@ -71,7 +81,6 @@
             </th>
             <th pSortableColumn="lineaNombre" style="min-width: 120px">Línea</th>
             <th pSortableColumn="plantaNombre" style="min-width: 120px">Planta</th>
-            <th pSortableColumn="tagNombre" style="min-width: 120px">Tag</th>
             <th pSortableColumn="estadoParoNombre" style="min-width: 130px">Estado Paro</th>
             <th pSortableColumn="fechaRegistro" style="min-width: 110px">Fecha</th>
             <th style="min-width: 90px">Hora Inicio</th>
@@ -90,7 +99,6 @@
             <td><span class="id-chip">#{{ registro.idRegistroParo }}</span></td>
             <td><span class="nombre-text">{{ registro.lineaNombre || '-' }}</span></td>
             <td><span class="nombre-text">{{ registro.plantaNombre || '-' }}</span></td>
-            <td><span class="nombre-text">{{ registro.tagNombre || '-' }}</span></td>
             <td><span class="nombre-text">{{ registro.estadoParoNombre || '-' }}</span></td>
             <td><span class="fecha-text">{{ registro.fechaRegistro | date:'dd/MM/yyyy' }}</span></td>
             <td><span class="fecha-text">{{ registro.horaInicio }}</span></td>
@@ -132,7 +140,7 @@
 
         <ng-template pTemplate="empty">
           <tr>
-            <td colspan="14" class="text-center py-5">
+            <td colspan="13" class="text-center py-5">
               <div class="empty-inline">
                 <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
                 <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
@@ -189,6 +197,81 @@
     (guardado)="onRegistroGuardado()"
     (cancelado)="cerrarDialog()">
   </app-registro-paro-justificado-form>
+</p-dialog>
+
+<!-- Dialog Paro Manual -->
+<p-dialog
+  [(visible)]="showDialogManual"
+  [modal]="true"
+  [style]="{width: '42rem', maxWidth: '95vw'}"
+  header="Agregar paro manual"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialogManual()">
+  <form (ngSubmit)="guardarParoManual()" class="paro-manual-form">
+    <div class="formgrid grid">
+      <div class="field col-12">
+        <label for="manualLineaPlanta" class="field-label">Línea - Planta <span class="required">*</span></label>
+        <p-dropdown
+          id="manualLineaPlanta"
+          [options]="lineasConPlanta"
+          [(ngModel)]="manualForm.lineaPlantaSeleccionada"
+          optionLabel="label"
+          name="lineaPlantaSeleccionada"
+          placeholder="Seleccione la línea y planta"
+          [showClear]="true"
+          [disabled]="loadingManual"
+          styleClass="w-full"
+          required>
+        </p-dropdown>
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualFecha" class="field-label">Fecha <span class="required">*</span></label>
+        <input id="manualFecha" type="date" pInputText [(ngModel)]="manualForm.fechaRegistro" name="fechaRegistro" class="w-full" [disabled]="loadingManual" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualHoraInicio" class="field-label">Hora inicio <span class="required">*</span></label>
+        <input id="manualHoraInicio" type="time" pInputText [(ngModel)]="manualForm.horaInicioTime" name="horaInicioTime" class="w-full" [disabled]="loadingManual" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualHoraFin" class="field-label">Hora fin (opcional)</label>
+        <input id="manualHoraFin" type="time" pInputText [(ngModel)]="manualForm.horaFinTime" name="horaFinTime" class="w-full" [disabled]="loadingManual" />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualEstado" class="field-label">Estado del paro</label>
+        <p-dropdown
+          id="manualEstado"
+          [options]="estadosParo"
+          [(ngModel)]="manualForm.idEstadoParo"
+          optionLabel="nombre"
+          optionValue="idEstadoParo"
+          name="idEstadoParo"
+          placeholder="Estado (default: 1)"
+          [showClear]="true"
+          [disabled]="loadingManual"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+      <div class="field col-12">
+        <label for="manualCausa" class="field-label">Causa raíz (opcional)</label>
+        <input id="manualCausa" type="text" pInputText [(ngModel)]="manualForm.causaRaiz" name="causaRaiz" class="w-full" [disabled]="loadingManual" placeholder="Causa raíz" />
+      </div>
+      <div class="field col-12">
+        <label for="manualSubCausa" class="field-label">Subcausa (opcional)</label>
+        <input id="manualSubCausa" type="text" pInputText [(ngModel)]="manualForm.subCausa" name="subCausa" class="w-full" [disabled]="loadingManual" placeholder="Subcausa" />
+      </div>
+      <div class="field col-12">
+        <label for="manualComentarios" class="field-label">Comentarios (opcional)</label>
+        <textarea id="manualComentarios" pInputTextarea [(ngModel)]="manualForm.comentarios" name="comentarios" [rows]="2" class="w-full" [disabled]="loadingManual" placeholder="Comentarios"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-content-end gap-2 mt-3">
+      <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="cerrarDialogManual()" [disabled]="loadingManual"></button>
+      <button pButton type="submit" label="Registrar paro" icon="pi pi-check" class="p-button-primary" [disabled]="loadingManual" [loading]="loadingManual"></button>
+    </div>
+  </form>
 </p-dialog>
 
 @if (processing) {

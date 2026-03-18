@@ -101,24 +101,13 @@
           id="idEstadoParo"
           [options]="estadosParo"
           [(ngModel)]="idEstadoParo"
+          optionLabel="nombre"
           optionValue="idEstadoParo"
           name="idEstadoParo"
           placeholder="Seleccione el estado"
           [showClear]="true"
           [disabled]="loading"
           styleClass="w-full dropdown-estado-paro">
-          <ng-template pTemplate="selectedItem" let-selected>
-            @if (selected) {
-              <div class="flex flex-column">
-                <span>{{ getEstadoParoNombre(selected) }}</span>
-                @if (getEstadoParoDescripcion(selected)) {
-                  <span class="text-xs text-color-secondary">{{ getEstadoParoDescripcion(selected) }}</span>
-                }
-              </div>
-            } @else {
-              <span class="dropdown-placeholder">Seleccione el estado</span>
-            }
-          </ng-template>
           <ng-template let-estado pTemplate="item">
             <div class="flex flex-column gap-1">
               <span>{{ estado.nombre }}</span>
