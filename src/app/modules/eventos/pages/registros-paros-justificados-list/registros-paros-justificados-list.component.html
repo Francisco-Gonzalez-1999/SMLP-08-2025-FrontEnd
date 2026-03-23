@@ -69,7 +69,7 @@
         [rows]="15"
         [rowsPerPageOptions]="[10, 15, 25, 50]"
         [tableStyle]="{ 'min-width': '100%' }"
-        [globalFilterFields]="['lineaNombre', 'plantaNombre', 'estadoParoNombre', 'causaRaiz', 'subCausa', 'comentarios']"
+        [globalFilterFields]="['idRegistroParo', 'lineaNombre', 'plantaNombre', 'estadoParoNombre', 'fechaRegistro', 'horaInicio', 'horaFin', 'duracionMinutos', 'causaRaiz', 'subCausa', 'comentarios', 'usuarioUltimaMod', 'usuarioRegistra']"
         styleClass="p-datatable-sm config-table"
         [scrollable]="true"
         scrollHeight="58vh">
@@ -77,19 +77,183 @@
         <ng-template pTemplate="header">
           <tr>
             <th pSortableColumn="idRegistroParo" style="min-width: 70px; width: 70px">
-              ID <p-sortIcon field="idRegistroParo"></p-sortIcon>
+              ID
+              <p-sortIcon field="idRegistroParo"></p-sortIcon>
+              <p-columnFilter
+                type="numeric"
+                field="idRegistroParo"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
             </th>
-            <th pSortableColumn="lineaNombre" style="min-width: 120px">Línea</th>
-            <th pSortableColumn="plantaNombre" style="min-width: 120px">Planta</th>
-            <th pSortableColumn="estadoParoNombre" style="min-width: 130px">Estado Paro</th>
-            <th pSortableColumn="fechaRegistro" style="min-width: 110px">Fecha</th>
-            <th style="min-width: 90px">Hora Inicio</th>
-            <th style="min-width: 90px">Hora Fin</th>
-            <th style="min-width: 90px">Duración</th>
-            <th pSortableColumn="causaRaiz" style="min-width: 140px">Causa Raíz</th>
-            <th pSortableColumn="subCausa" style="min-width: 120px">Subcausa</th>
-            <th pSortableColumn="comentarios" style="min-width: 160px">Comentarios</th>
-            <th pSortableColumn="usuarioUltimaMod" style="min-width: 120px">Usuario</th>
+            <th pSortableColumn="lineaNombre" style="min-width: 120px">
+              Línea
+              <p-sortIcon field="lineaNombre"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="lineaNombre"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniqueLinea()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todas"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="plantaNombre" style="min-width: 120px">
+              Planta
+              <p-sortIcon field="plantaNombre"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="plantaNombre"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniquePlanta()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todas"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="estadoParoNombre" style="min-width: 130px">
+              Estado Paro
+              <p-sortIcon field="estadoParoNombre"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="estadoParoNombre"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniqueEstadoParo()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todos"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="fechaRegistro" style="min-width: 110px">
+              Fecha
+              <p-sortIcon field="fechaRegistro"></p-sortIcon>
+              <p-columnFilter
+                type="date"
+                field="fechaRegistroDate"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-calendar
+                    (onSelect)="filter($event)"
+                    [showClear]="true"
+                    dateFormat="yy-mm-dd"
+                    placeholder="Seleccione fecha"
+                    appendTo="body"
+                    [showIcon]="true">
+                  </p-calendar>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="horaInicio" style="min-width: 90px">
+              Hora Inicio
+              <p-sortIcon field="horaInicio"></p-sortIcon>
+            </th>
+            <th pSortableColumn="horaFin" style="min-width: 90px">
+              Hora Fin
+              <p-sortIcon field="horaFin"></p-sortIcon>
+            </th>
+            <th pSortableColumn="duracionMinutos" style="min-width: 90px">
+              Duración
+              <p-sortIcon field="duracionMinutos"></p-sortIcon>
+              <p-columnFilter
+                type="numeric"
+                field="duracionMinutos"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="causaRaiz" style="min-width: 140px">
+              Causa Raíz
+              <p-sortIcon field="causaRaiz"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="causaRaiz"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="subCausa" style="min-width: 120px">
+              Subcausa
+              <p-sortIcon field="subCausa"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="subCausa"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="comentarios" style="min-width: 160px">
+              Comentarios
+              <p-sortIcon field="comentarios"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="comentarios"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="usuarioUltimaMod" style="min-width: 120px">
+              Usuario
+              <p-sortIcon field="usuarioUltimaMod"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="usuarioUltimaMod"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniqueUsuario()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todos"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
             <th style="width: 150px">Acciones</th>
           </tr>
         </ng-template>

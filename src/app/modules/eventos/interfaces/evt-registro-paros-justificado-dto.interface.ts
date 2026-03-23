@@ -23,6 +23,7 @@ export interface EvtRegistroParosJustificadoDTO {
   tagNombre: string | null;
   estadoParoNombre: string | null;
   eventoNombre: string | null;
+  fechaRegistroDate?: Date | null;
 }
 
 export interface ActualizarRegistroParoJustificadoDTO {

@@ -17,6 +17,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
 
 // Services e Interfaces
 import { EvtRegistroParosJustificadosService } from '../../services/evt-registro-paros-justificados.service';
@@ -56,6 +57,7 @@ import { RegistroParoJustificadoFormComponent } from '../../components/registro-
     TooltipModule,
     ProgressSpinnerModule,
     DropdownModule,
+    CalendarModule,
     RegistroParoJustificadoFormComponent
   ],
   providers: [ConfirmationService],
@@ -224,7 +226,10 @@ export class RegistrosParosJustificadosListComponent implements OnInit {
     this.evtRegistroParosJustificadosService.obtenerRegistrosParosJustificados().subscribe({
       next: (response: ApiResponse<EvtRegistroParosJustificadoDTO[]>) => {
         if (response.statusCode === 200 && response.data) {
-          this.registros = response.data;
+          this.registros = response.data.map(r => ({
+            ...r,
+            fechaRegistroDate: r.fechaRegistro ? new Date(r.fechaRegistro + 'T00:00:00') : null
+          }));
         } else {
           this.toastService.showWarn('Advertencia', response.message || 'No se pudieron cargar los registros');
           this.registros = [];
@@ -299,6 +304,26 @@ export class RegistrosParosJustificadosListComponent implements OnInit {
         });
       }
     });
+  }
+
+  getUniqueLinea(): { label: string; value: string }[] {
+    const values = [...new Set(this.registros.map(r => r.lineaNombre).filter(Boolean))];
+    return values.map(v => ({ label: v!, value: v! }));
+  }
+
+  getUniquePlanta(): { label: string; value: string }[] {
+    const values = [...new Set(this.registros.map(r => r.plantaNombre).filter(Boolean))];
+    return values.map(v => ({ label: v!, value: v! }));
+  }
+
+  getUniqueEstadoParo(): { label: string; value: string }[] {
+    const values = [...new Set(this.registros.map(r => r.estadoParoNombre).filter(Boolean))];
+    return values.map(v => ({ label: v!, value: v! }));
+  }
+
+  getUniqueUsuario(): { label: string; value: string }[] {
+    const values = [...new Set(this.registros.map(r => r.usuarioUltimaMod || r.usuarioRegistra).filter(Boolean))];
+    return values.map(v => ({ label: v!, value: v! }));
   }
 
   getSeverity(estaActivo: boolean): 'success' | 'danger' {
