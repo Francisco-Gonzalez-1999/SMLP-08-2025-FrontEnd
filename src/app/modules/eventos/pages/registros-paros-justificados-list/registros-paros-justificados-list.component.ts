@@ -25,6 +25,7 @@ import { CatLineasService } from '../../../configuration/services/cat-lineas.ser
 import { CatPlantasService } from '../../../configuration/services/cat-plantas.service';
 import { CatEstadosParosService } from '../../../configuration/services/cat-estados-paros.service';
 import { AuthService } from '../../../admin/services/auth.service';
+import { PermisosService } from '../../../../shared/services/permisos.service';
 import {
   EvtRegistroParosJustificadoDTO,
   ActivarDesactivarRegistroParoJustificadoDTO,
@@ -105,12 +106,25 @@ export class RegistrosParosJustificadosListComponent implements OnInit {
   };
   @ViewChild('dt') dt!: Table;
 
+  get puedeCrear(): boolean {
+    return this.permisosService.tienePermiso('MOD_BITACORA_PAROS', 'CREAR');
+  }
+
+  get puedeEditar(): boolean {
+    return this.permisosService.tienePermiso('MOD_BITACORA_PAROS', 'EDITAR');
+  }
+
+  get puedeActivarDesactivar(): boolean {
+    return this.permisosService.tienePermiso('MOD_BITACORA_PAROS', 'ELIMINAR');
+  }
+
   constructor(
     private evtRegistroParosJustificadosService: EvtRegistroParosJustificadosService,
     private catLineasService: CatLineasService,
     private catPlantasService: CatPlantasService,
     private catEstadosParosService: CatEstadosParosService,
     private authService: AuthService,
+    private permisosService: PermisosService,
     private toastService: ToastService,
     private confirmationService: ConfirmationService
   ) { }

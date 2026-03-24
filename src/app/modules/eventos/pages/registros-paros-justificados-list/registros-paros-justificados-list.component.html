@@ -15,14 +15,16 @@
       </div>
     </div>
     <div class="header-actions">
-      <p-button
-        icon="pi pi-plus"
-        label="Agregar paro manual"
-        severity="secondary"
-        (click)="abrirDialogParoManual()"
-        [disabled]="loading"
-        styleClass="p-button-sm">
-      </p-button>
+      @if (puedeCrear) {
+        <p-button
+          icon="pi pi-plus"
+          label="Agregar paro manual"
+          severity="secondary"
+          (click)="abrirDialogParoManual()"
+          [disabled]="loading"
+          styleClass="p-button-sm">
+        </p-button>
+      }
       @if (registros.length > 0) {
         <p-button
           icon="pi pi-refresh"
@@ -274,29 +276,33 @@
             <td><span class="nombre-text">{{ registro.usuarioUltimaMod || registro.usuarioRegistra || '-' }}</span></td>
             <td>
               <div class="flex align-items-center gap-2">
-                <button
-                  pButton
-                  pRipple
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-text p-button-primary"
-                  (click)="abrirDialogEditar(registro)"
-                  pTooltip="Editar justificación"
-                  tooltipPosition="top"
-                  styleClass="p-button-sm">
-                </button>
-                <button
-                  pButton
-                  pRipple
-                  [label]="registro.estaActivo ? 'Desactivar' : 'Activar'"
-                  [severity]="registro.estaActivo ? 'danger' : 'success'"
-                  [outlined]="true"
-                  size="small"
-                  (click)="cambiarEstado(registro)"
-                  [disabled]="processing"
-                  pTooltip="{{ registro.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
-                  tooltipPosition="top"
-                  styleClass="p-button-sm">
-                </button>
+                @if (puedeEditar) {
+                  <button
+                    pButton
+                    pRipple
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-text p-button-primary"
+                    (click)="abrirDialogEditar(registro)"
+                    pTooltip="Editar justificación"
+                    tooltipPosition="top"
+                    styleClass="p-button-sm">
+                  </button>
+                }
+                @if (puedeActivarDesactivar) {
+                  <button
+                    pButton
+                    pRipple
+                    [label]="registro.estaActivo ? 'Desactivar' : 'Activar'"
+                    [severity]="registro.estaActivo ? 'danger' : 'success'"
+                    [outlined]="true"
+                    size="small"
+                    (click)="cambiarEstado(registro)"
+                    [disabled]="processing"
+                    pTooltip="{{ registro.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
+                    tooltipPosition="top"
+                    styleClass="p-button-sm">
+                  </button>
+                }
               </div>
             </td>
           </tr>
@@ -387,6 +393,7 @@
           placeholder="Seleccione la línea y planta"
           [showClear]="true"
           [disabled]="loadingManual"
+          appendTo="body"
           styleClass="w-full"
           required>
         </p-dropdown>
@@ -415,6 +422,7 @@
           placeholder="Estado (default: 1)"
           [showClear]="true"
           [disabled]="loadingManual"
+          appendTo="body"
           styleClass="w-full">
         </p-dropdown>
       </div>
