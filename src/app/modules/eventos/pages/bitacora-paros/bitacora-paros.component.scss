@@ -1,0 +1,239 @@
+/* Turno panel */
+.turno-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.turno-selector {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.turno-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.turno-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  i {
+    font-size: 0.8rem;
+    color: #94a3b8;
+  }
+}
+
+.turno-date-input {
+  max-width: 160px;
+}
+
+.resumen-horas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.resumen-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  min-width: 180px;
+
+  &.justificadas {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border: 1px solid #86efac;
+  }
+
+  &.injustificadas {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border: 1px solid #fca5a5;
+  }
+}
+
+.resumen-titulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #475569;
+  margin-bottom: 0.25rem;
+}
+
+.resumen-valor {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+/* Lock banner */
+.lock-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &.locked {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+
+    i {
+      color: #dc2626;
+    }
+  }
+
+  &.warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+
+    i {
+      color: #f59e0b;
+    }
+  }
+}
+
+/* Division dialog */
+.division-info {
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.division-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.division-info-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.division-info-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+
+  &.highlight {
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+}
+
+.division-progress {
+  margin-bottom: 1.25rem;
+}
+
+.division-progress-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.4rem;
+}
+
+.division-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+
+  &.complete {
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+  }
+
+  &.over {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+}
+
+.division-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.division-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.division-item {
+  padding: 1rem;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.division-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.division-item-num {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.division-actions {
+  margin-top: 0.5rem;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.paro-manual-form {
+  .field-label .required {
+    color: var(--p-danger-400, #f87171);
+  }
+}

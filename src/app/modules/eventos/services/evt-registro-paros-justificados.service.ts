@@ -8,6 +8,7 @@ import {
   ActivarDesactivarRegistroParoJustificadoDTO,
   CrearRegistroParoManualDTO
 } from '../interfaces/evt-registro-paros-justificado-dto.interface';
+import { DividirRegistroParoDTO } from '../interfaces/division-paro.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,13 @@ export class EvtRegistroParosJustificadosService {
   crearRegistroParoManual(dto: CrearRegistroParoManualDTO): Observable<ApiResponse<EvtRegistroParosJustificadoDTO>> {
     return this.httpClientService.post<ApiResponse<EvtRegistroParosJustificadoDTO>>(
       `${this.endpoint}/CrearRegistroParoManual`,
+      dto
+    );
+  }
+
+  dividirRegistroParo(dto: DividirRegistroParoDTO): Observable<ApiResponse<EvtRegistroParosJustificadoDTO[]>> {
+    return this.httpClientService.post<ApiResponse<EvtRegistroParosJustificadoDTO[]>>(
+      `${this.endpoint}/DividirRegistroParo`,
       dto
     );
   }

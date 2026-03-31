@@ -1,0 +1,634 @@
+<p-toast position="top-right"></p-toast>
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+<div class="bitacora-paros-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <i class="pi pi-book"></i>
+      </div>
+      <div>
+        <h2 class="m-0">Bitácora de Paros</h2>
+        <p class="m-0 mt-1">Gestión de paros acumulados por turno</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      @if (puedeCrear) {
+        <p-button
+          icon="pi pi-plus"
+          label="Agregar paro manual"
+          severity="secondary"
+          (click)="abrirDialogParoManual()"
+          [disabled]="loading || turnoBlockeado"
+          styleClass="p-button-sm">
+        </p-button>
+      }
+      <p-button
+        icon="pi pi-refresh"
+        label="Actualizar"
+        [text]="true"
+        (click)="cargarRegistros()"
+        styleClass="p-button-sm">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Shift Selector + Summary -->
+  <div class="turno-panel">
+    <div class="turno-selector">
+      <div class="turno-field">
+        <label class="turno-label">
+          <i class="pi pi-calendar"></i> Fecha:
+        </label>
+        <input
+          type="date"
+          pInputText
+          [(ngModel)]="fechaSeleccionada"
+          (change)="onCambioFiltro()"
+          class="turno-date-input" />
+      </div>
+      <div class="turno-field">
+        <label class="turno-label">
+          <i class="pi pi-clock"></i> Turno:
+        </label>
+        <p-dropdown
+          [options]="turnosDisponibles"
+          [(ngModel)]="turnoSeleccionado"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onCambioFiltro()"
+          [style]="{'min-width': '150px'}"
+          appendTo="body">
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="resumen-horas">
+      <div class="resumen-box justificadas">
+        <span class="resumen-titulo">Horas justificadas</span>
+        <span class="resumen-valor">{{ horasJustificadas | number:'1.2-2' }}</span>
+      </div>
+      <div class="resumen-box injustificadas">
+        <span class="resumen-titulo">Horas injustificadas</span>
+        <span class="resumen-valor">{{ horasInjustificadas | number:'1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lock warning -->
+  @if (turnoBlockeado) {
+    <div class="lock-banner locked">
+      <i class="pi pi-lock"></i>
+      <span>El periodo de edición para este turno ha finalizado. Los registros son de solo lectura.</span>
+    </div>
+  }
+  @if (tiempoRestante && !turnoBlockeado) {
+    <div class="lock-banner warning">
+      <i class="pi pi-clock"></i>
+      <span>Tiempo restante para editar: <strong>{{ tiempoRestante }}</strong></span>
+    </div>
+  }
+
+  <!-- Table Section -->
+  @if (registrosFiltrados.length > 0) {
+    <div class="table-section">
+      <div class="section-header">
+        <div class="section-header-left">
+          <div class="section-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">
+            <i class="pi pi-table"></i>
+          </div>
+          <div>
+            <h3 class="section-title">Listado de Paros</h3>
+            <span class="section-subtitle">{{ registrosFiltrados.length }} registro(s) encontrado(s)</span>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <div class="search-wrapper">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              class="search-input"
+              placeholder="Buscar..."
+              [(ngModel)]="globalFilter"
+              (input)="onGlobalFilter(dt, $event)">
+          </div>
+        </div>
+      </div>
+
+      <p-table
+        #dt
+        [value]="registrosFiltrados"
+        [paginator]="true"
+        [rows]="15"
+        [rowsPerPageOptions]="[10, 15, 25, 50]"
+        [tableStyle]="{ 'min-width': '100%' }"
+        [globalFilterFields]="['idRegistroParo', 'lineaNombre', 'plantaNombre', 'estadoParoNombre', 'fechaRegistro', 'horaInicio', 'horaFin', 'duracionMinutos', 'causaRaiz', 'subCausa', 'comentarios', 'usuarioUltimaMod', 'usuarioRegistra']"
+        styleClass="p-datatable-sm config-table"
+        [scrollable]="true"
+        scrollHeight="50vh">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="idRegistroParo" style="min-width: 70px; width: 70px">
+              ID
+              <p-sortIcon field="idRegistroParo"></p-sortIcon>
+              <p-columnFilter
+                type="numeric"
+                field="idRegistroParo"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="lineaNombre" style="min-width: 120px">
+              Línea
+              <p-sortIcon field="lineaNombre"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="lineaNombre"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniqueLinea()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todas"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="plantaNombre" style="min-width: 120px">
+              Planta
+              <p-sortIcon field="plantaNombre"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="plantaNombre"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniquePlanta()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todas"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="estadoParoNombre" style="min-width: 130px">
+              Estado Paro
+              <p-sortIcon field="estadoParoNombre"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="estadoParoNombre"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniqueEstadoParo()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todos"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="fechaRegistro" style="min-width: 110px">
+              Fecha
+              <p-sortIcon field="fechaRegistro"></p-sortIcon>
+            </th>
+            <th pSortableColumn="horaInicio" style="min-width: 90px">
+              Hora Inicio
+              <p-sortIcon field="horaInicio"></p-sortIcon>
+            </th>
+            <th pSortableColumn="horaFin" style="min-width: 90px">
+              Hora Fin
+              <p-sortIcon field="horaFin"></p-sortIcon>
+            </th>
+            <th pSortableColumn="duracionMinutos" style="min-width: 90px">
+              Duración
+              <p-sortIcon field="duracionMinutos"></p-sortIcon>
+              <p-columnFilter
+                type="numeric"
+                field="duracionMinutos"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="causaRaiz" style="min-width: 140px">
+              Causa Raíz
+              <p-sortIcon field="causaRaiz"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="causaRaiz"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="subCausa" style="min-width: 120px">
+              Subcausa
+              <p-sortIcon field="subCausa"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="subCausa"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="comentarios" style="min-width: 160px">
+              Comentarios
+              <p-sortIcon field="comentarios"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="comentarios"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+              </p-columnFilter>
+            </th>
+            <th pSortableColumn="usuarioUltimaMod" style="min-width: 120px">
+              Usuario
+              <p-sortIcon field="usuarioUltimaMod"></p-sortIcon>
+              <p-columnFilter
+                type="text"
+                field="usuarioUltimaMod"
+                display="menu"
+                [showMatchModes]="false"
+                [showAddButton]="false"
+                [showOperator]="false">
+                <ng-template pTemplate="filter" let-filter="filterCallback">
+                  <p-dropdown
+                    [options]="getUniqueUsuario()"
+                    (onChange)="filter($any($event).value)"
+                    [showClear]="true"
+                    placeholder="Todos"
+                    appendTo="body"
+                    styleClass="w-full column-filter-dropdown">
+                  </p-dropdown>
+                </ng-template>
+              </p-columnFilter>
+            </th>
+            <th style="width: 180px">Acciones</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-registro>
+          <tr>
+            <td><span class="id-chip">#{{ registro.idRegistroParo }}</span></td>
+            <td><span class="nombre-text">{{ registro.lineaNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.plantaNombre || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.estadoParoNombre || '-' }}</span></td>
+            <td><span class="fecha-text">{{ registro.fechaRegistro | date:'dd/MM/yyyy' }}</span></td>
+            <td><span class="fecha-text">{{ registro.horaInicio }}</span></td>
+            <td><span class="fecha-text">{{ registro.horaFin || '-' }}</span></td>
+            <td><span class="fecha-text">{{ registro.duracionMinutos != null ? registro.duracionMinutos + ' min' : '-' }}</span></td>
+            <td><span class="descripcion-text">{{ registro.causaRaiz || '-' }}</span></td>
+            <td><span class="descripcion-text">{{ registro.subCausa || '-' }}</span></td>
+            <td><span class="descripcion-text">{{ registro.comentarios || '-' }}</span></td>
+            <td><span class="nombre-text">{{ registro.usuarioUltimaMod || registro.usuarioRegistra || '-' }}</span></td>
+            <td>
+              <div class="flex align-items-center gap-1">
+                @if (!isRegistroEditable(registro)) {
+                  <i class="pi pi-lock text-gray-400" pTooltip="Periodo de edición finalizado" tooltipPosition="top" style="font-size: 0.85rem;"></i>
+                }
+                @if (puedeEditar) {
+                  <button
+                    pButton
+                    pRipple
+                    icon="pi pi-pencil"
+                    class="p-button-rounded p-button-text p-button-primary"
+                    (click)="abrirDialogEditar(registro)"
+                    pTooltip="Editar justificación"
+                    tooltipPosition="top"
+                    [disabled]="!isRegistroEditable(registro)">
+                  </button>
+                }
+                @if (puedeEditar && registro.duracionMinutos && registro.duracionMinutos > 0) {
+                  <button
+                    pButton
+                    pRipple
+                    icon="pi pi-arrows-h"
+                    class="p-button-rounded p-button-text p-button-warning"
+                    (click)="abrirDivisionDialog(registro)"
+                    pTooltip="Dividir tiempo en causas"
+                    tooltipPosition="top"
+                    [disabled]="!isRegistroEditable(registro)">
+                  </button>
+                }
+                @if (puedeActivarDesactivar) {
+                  <button
+                    pButton
+                    pRipple
+                    [label]="registro.estaActivo ? 'Desactivar' : 'Activar'"
+                    [severity]="registro.estaActivo ? 'danger' : 'success'"
+                    [outlined]="true"
+                    size="small"
+                    (click)="cambiarEstado(registro)"
+                    [disabled]="processing"
+                    pTooltip="{{ registro.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
+                    tooltipPosition="top"
+                    styleClass="p-button-sm">
+                  </button>
+                }
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="empty">
+          <tr>
+            <td colspan="13" class="text-center py-5">
+              <div class="empty-inline">
+                <i class="pi pi-filter-slash text-2xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500 m-0">No se encontraron resultados con los filtros aplicados</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (registrosFiltrados.length === 0 && !loading) {
+    <div class="empty-state">
+      <div class="empty-state-content">
+        <div class="empty-icon">
+          <i class="pi pi-book"></i>
+        </div>
+        <h3>No hay registros para este turno</h3>
+        <p>No se encontraron paros para la fecha y turno seleccionados.</p>
+        <p-button
+          icon="pi pi-refresh"
+          label="Actualizar"
+          [outlined]="true"
+          (click)="cargarRegistros()"
+          styleClass="p-button-sm mt-3">
+        </p-button>
+      </div>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="loading-section">
+      <p-progressSpinner ariaLabel="loading" [style]="{ width: '50px', height: '50px' }" strokeWidth="4"></p-progressSpinner>
+      <span class="loading-text">Cargando registros...</span>
+    </div>
+  }
+</div>
+
+<!-- Edit Dialog -->
+<p-dialog
+  [(visible)]="showEditDialog"
+  [modal]="true"
+  [style]="{width: '55rem', maxWidth: '95vw'}"
+  header="Justificación de Paro"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialogEditar()">
+  <app-registro-paro-justificado-form
+    [registro]="selectedRegistro"
+    (guardado)="onRegistroGuardado()"
+    (cancelado)="cerrarDialogEditar()">
+  </app-registro-paro-justificado-form>
+</p-dialog>
+
+<!-- Division Dialog -->
+<p-dialog
+  [(visible)]="showDivisionDialog"
+  [modal]="true"
+  [style]="{width: '50rem', maxWidth: '95vw'}"
+  header="Dividir tiempo del paro"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDivisionDialog()">
+
+  @if (registroParaDividir) {
+    <div class="division-info">
+      <div class="division-info-row">
+        <span class="division-info-label">Registro:</span>
+        <span class="division-info-value">#{{ registroParaDividir.idRegistroParo }}</span>
+      </div>
+      <div class="division-info-row">
+        <span class="division-info-label">Línea:</span>
+        <span class="division-info-value">{{ registroParaDividir.lineaNombre || '-' }}</span>
+      </div>
+      <div class="division-info-row">
+        <span class="division-info-label">Duración total:</span>
+        <span class="division-info-value highlight">{{ registroParaDividir.duracionMinutos }} min</span>
+      </div>
+    </div>
+
+    <div class="division-progress">
+      <div class="division-progress-bar">
+        <div
+          class="division-progress-fill"
+          [style.width.%]="(minutosAsignados / (registroParaDividir.duracionMinutos || 1)) * 100"
+          [class.complete]="minutosDisponibles === 0"
+          [class.over]="minutosDisponibles < 0">
+        </div>
+      </div>
+      <div class="division-progress-labels">
+        <span>Asignados: {{ minutosAsignados }} min</span>
+        <span [class.text-red-500]="minutosDisponibles < 0">Disponibles: {{ minutosDisponibles }} min</span>
+      </div>
+    </div>
+
+    <div class="division-list">
+      @for (division of divisiones; track $index; let i = $index) {
+        <div class="division-item">
+          <div class="division-item-header">
+            <span class="division-item-num">División {{ i + 1 }}</span>
+            @if (divisiones.length > 1) {
+              <button
+                pButton
+                pRipple
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger p-button-sm"
+                (click)="eliminarDivision(i)"
+                pTooltip="Eliminar división"
+                tooltipPosition="top">
+              </button>
+            }
+          </div>
+          <div class="formgrid grid">
+            <div class="field col-12 md:col-4">
+              <label class="field-label">Duración (min) <span class="text-red-500">*</span></label>
+              <input
+                type="number"
+                pInputText
+                [(ngModel)]="division.duracionMinutos"
+                class="w-full"
+                min="1"
+                placeholder="Minutos" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <label class="field-label">Causa Raíz <span class="text-red-500">*</span></label>
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="division.causaRaiz"
+                class="w-full"
+                placeholder="Causa raíz" />
+            </div>
+            <div class="field col-12 md:col-4">
+              <label class="field-label">Subcausa</label>
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="division.subCausa"
+                class="w-full"
+                placeholder="Subcausa" />
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="division-actions">
+      <button
+        pButton
+        pRipple
+        type="button"
+        icon="pi pi-plus"
+        label="Agregar división"
+        class="p-button-text p-button-sm"
+        (click)="agregarDivision()">
+      </button>
+    </div>
+
+    <div class="flex justify-content-end gap-2 mt-3 pt-3 border-top-1 surface-border">
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        class="p-button-text p-button-secondary"
+        (click)="cerrarDivisionDialog()"
+        [disabled]="loadingDivision">
+      </button>
+      <button
+        pButton
+        type="button"
+        label="Guardar divisiones"
+        icon="pi pi-check"
+        class="p-button-primary"
+        (click)="guardarDivisiones()"
+        [disabled]="loadingDivision || minutosDisponibles !== 0"
+        [loading]="loadingDivision">
+      </button>
+    </div>
+  }
+</p-dialog>
+
+<!-- Manual Paro Dialog -->
+<p-dialog
+  [(visible)]="showDialogManual"
+  [modal]="true"
+  [style]="{width: '42rem', maxWidth: '95vw'}"
+  header="Agregar paro manual"
+  [draggable]="false"
+  [resizable]="false"
+  [contentStyle]="{'padding': '1.5rem'}"
+  [styleClass]="'config-dialog'"
+  (onHide)="cerrarDialogManual()">
+  <form (ngSubmit)="guardarParoManual()" class="paro-manual-form">
+    <div class="formgrid grid">
+      <div class="field col-12">
+        <label for="manualLineaPlanta" class="field-label">Línea - Planta <span class="required">*</span></label>
+        <p-dropdown
+          id="manualLineaPlanta"
+          [options]="lineasConPlanta"
+          [(ngModel)]="manualForm.lineaPlantaSeleccionada"
+          optionLabel="label"
+          name="lineaPlantaSeleccionada"
+          placeholder="Seleccione la línea y planta"
+          [showClear]="true"
+          [disabled]="loadingManual"
+          appendTo="body"
+          styleClass="w-full"
+          required>
+        </p-dropdown>
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualFecha" class="field-label">Fecha <span class="required">*</span></label>
+        <input id="manualFecha" type="date" pInputText [(ngModel)]="manualForm.fechaRegistro" name="fechaRegistro" class="w-full" [disabled]="loadingManual" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualHoraInicio" class="field-label">Hora inicio <span class="required">*</span></label>
+        <input id="manualHoraInicio" type="time" pInputText [(ngModel)]="manualForm.horaInicioTime" name="horaInicioTime" class="w-full" [disabled]="loadingManual" required />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualHoraFin" class="field-label">Hora fin (opcional)</label>
+        <input id="manualHoraFin" type="time" pInputText [(ngModel)]="manualForm.horaFinTime" name="horaFinTime" class="w-full" [disabled]="loadingManual" />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="manualEstado" class="field-label">Estado del paro</label>
+        <p-dropdown
+          id="manualEstado"
+          [options]="estadosParo"
+          [(ngModel)]="manualForm.idEstadoParo"
+          optionLabel="nombre"
+          optionValue="idEstadoParo"
+          name="idEstadoParo"
+          placeholder="Estado (default: 1)"
+          [showClear]="true"
+          [disabled]="loadingManual"
+          appendTo="body"
+          styleClass="w-full">
+        </p-dropdown>
+      </div>
+      <div class="field col-12">
+        <label for="manualCausa" class="field-label">Causa raíz (opcional)</label>
+        <input id="manualCausa" type="text" pInputText [(ngModel)]="manualForm.causaRaiz" name="causaRaiz" class="w-full" [disabled]="loadingManual" placeholder="Causa raíz" />
+      </div>
+      <div class="field col-12">
+        <label for="manualSubCausa" class="field-label">Subcausa (opcional)</label>
+        <input id="manualSubCausa" type="text" pInputText [(ngModel)]="manualForm.subCausa" name="subCausa" class="w-full" [disabled]="loadingManual" placeholder="Subcausa" />
+      </div>
+      <div class="field col-12">
+        <label for="manualComentarios" class="field-label">Comentarios (opcional)</label>
+        <textarea id="manualComentarios" pInputTextarea [(ngModel)]="manualForm.comentarios" name="comentarios" [rows]="2" class="w-full" [disabled]="loadingManual" placeholder="Comentarios"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-content-end gap-2 mt-3">
+      <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="cerrarDialogManual()" [disabled]="loadingManual"></button>
+      <button pButton type="submit" label="Registrar paro" icon="pi pi-check" class="p-button-primary" [disabled]="loadingManual" [loading]="loadingManual"></button>
+    </div>
+  </form>
+</p-dialog>
+
+@if (processing) {
+  <div class="overlay-spinner">
+    <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+  </div>
+}
