@@ -237,3 +237,37 @@
     color: var(--p-danger-400, #f87171);
   }
 }
+
+.no-turnos-banner {
+  margin: 2rem auto;
+  max-width: 600px;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 12px;
+  padding: 2rem;
+
+  .no-turnos-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+
+    > i {
+      font-size: 2rem;
+      color: #d97706;
+      margin-top: 0.15rem;
+    }
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      color: #92400e;
+      font-size: 1.1rem;
+    }
+
+    p {
+      margin: 0;
+      color: #78350f;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  }
+}

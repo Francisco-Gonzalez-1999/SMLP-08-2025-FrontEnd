@@ -14,4 +14,10 @@ export class TurnosEcsService {
   getTurnosActivos(): Observable<any> {
     return this.http.get<any>(`${this.ecsApiUrl}CatTurnos/Activos`);
   }
+
+  getTurnosDelUsuario(correo: string): Observable<any> {
+    return this.http.get<any>(`${this.ecsApiUrl}IdnUsuariosTurnos/ObtenerTurnosPorCorreo`, {
+      params: { correo }
+    });
+  }
 }

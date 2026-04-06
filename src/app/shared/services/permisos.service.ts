@@ -98,6 +98,18 @@ export class PermisosService {
     );
   }
 
+  tieneRol(nombreRol: string): boolean {
+    const permisos = this.permisosSubject.getValue();
+    return permisos.some(
+      p => p.nombreRol.toUpperCase() === nombreRol.toUpperCase()
+    );
+  }
+
+  getRolesUnicos(): string[] {
+    const permisos = this.permisosSubject.getValue();
+    return [...new Set(permisos.map(p => p.nombreRol))];
+  }
+
   get estaCargado(): boolean {
     return this.cargadoSubject.getValue();
   }

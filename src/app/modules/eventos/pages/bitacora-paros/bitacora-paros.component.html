@@ -35,9 +35,37 @@
     </div>
   </div>
 
+  @if (sinTurnosAsignados) {
+    <div class="no-turnos-banner">
+      <div class="no-turnos-content">
+        <i class="pi pi-exclamation-triangle"></i>
+        <div>
+          <h3>Sin turnos asignados</h3>
+          <p>No tienes turnos configurados en el sistema. Contacta a un administrador para que te asigne los turnos correspondientes.</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!sinTurnosAsignados) {
   <!-- Shift Selector + Summary -->
   <div class="turno-panel">
     <div class="turno-selector">
+      <div class="turno-field">
+        <label class="turno-label">
+          <i class="pi pi-building"></i> Planta:
+        </label>
+        <p-dropdown
+          [options]="plantasDisponibles"
+          [(ngModel)]="plantaSeleccionada"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onCambioPlanta()"
+          [style]="{'min-width': '150px'}"
+          placeholder="Seleccione planta"
+          appendTo="body">
+        </p-dropdown>
+      </div>
       <div class="turno-field">
         <label class="turno-label">
           <i class="pi pi-calendar"></i> Fecha:
@@ -59,7 +87,7 @@
           optionLabel="label"
           optionValue="value"
           (onChange)="onCambioFiltro()"
-          [style]="{'min-width': '150px'}"
+          [style]="{'min-width': '200px'}"
           appendTo="body">
         </p-dropdown>
       </div>
@@ -312,7 +340,7 @@
             <td><span class="nombre-text">{{ registro.usuarioUltimaMod || registro.usuarioRegistra || '-' }}</span></td>
             <td>
               <div class="flex align-items-center gap-1">
-                @if (!isRegistroEditable(registro)) {
+                @if (aplicaBloqueoTemporal && !isRegistroEditable(registro)) {
                   <i class="pi pi-lock text-gray-400" pTooltip="Periodo de edición finalizado" tooltipPosition="top" style="font-size: 0.85rem;"></i>
                 }
                 @if (puedeEditar) {
@@ -327,7 +355,7 @@
                     [disabled]="!isRegistroEditable(registro)">
                   </button>
                 }
-                @if (puedeEditar && registro.duracionMinutos && registro.duracionMinutos > 0) {
+                @if (puedeDividir && registro.duracionMinutos && registro.duracionMinutos > 0) {
                   <button
                     pButton
                     pRipple
@@ -381,7 +409,7 @@
           <i class="pi pi-book"></i>
         </div>
         <h3>No hay registros para este turno</h3>
-        <p>No se encontraron paros para la fecha y turno seleccionados.</p>
+        <p>No se encontraron paros para la planta, fecha y turno seleccionados.</p>
         <p-button
           icon="pi pi-refresh"
           label="Actualizar"
@@ -400,6 +428,7 @@
       <span class="loading-text">Cargando registros...</span>
     </div>
   }
+  } <!-- end @if (!sinTurnosAsignados) -->
 </div>
 
 <!-- Edit Dialog -->

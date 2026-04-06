@@ -70,9 +70,12 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
   registrosFiltrados: EvtRegistroParosJustificadoDTO[] = [];
 
   fechaSeleccionada: string = '';
+  plantaSeleccionada: number | null = null;
   turnoSeleccionado: string = '';
+  private todosLosTurnosEcs: CatTurnoDTO[] = [];
   turnosData: CatTurnoDTO[] = [];
-  turnosDisponibles: { label: string; value: string }[] = [];
+  private turnoIdsDelUsuario: number[] = [];
+  sinTurnosAsignados: boolean = false;
 
   horasJustificadas: number = 0;
   horasInjustificadas: number = 0;
@@ -104,11 +107,13 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
   estadosParo: CatEstadosParoDTO[] = [];
 
   get lineasConPlanta(): { idLinea: number; idPlanta: number; label: string }[] {
-    return this.lineas.map(l => ({
-      idLinea: l.idLinea,
-      idPlanta: l.idPlanta,
-      label: `${l.nombre} - Planta ${this.getPlantaNombreById(l.idPlanta) || '...'}`
-    }));
+    return this.lineas
+      .filter(l => !this.plantaSeleccionada || l.idPlanta === this.plantaSeleccionada)
+      .map(l => ({
+        idLinea: l.idLinea,
+        idPlanta: l.idPlanta,
+        label: `${l.nombre} - Planta ${this.getPlantaNombreById(l.idPlanta) || '...'}`
+      }));
   }
 
   manualForm = {
@@ -136,8 +141,45 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
     return this.permisosService.tienePermiso('MOD_BITACORA_PAROS', 'EDITAR');
   }
 
+  get puedeDividir(): boolean {
+    return this.permisosService.tienePermiso('MOD_BITACORA_PAROS', 'DIVIDIR');
+  }
+
   get puedeActivarDesactivar(): boolean {
     return this.permisosService.tienePermiso('MOD_BITACORA_PAROS', 'ELIMINAR');
+  }
+
+  get aplicaBloqueoTemporal(): boolean {
+    const roles = this.permisosService.getRolesUnicos();
+    if (!roles.length) return true;
+    return roles.length === 1 && roles[0].toUpperCase() === 'OPERADOR DE LÍNEA';
+  }
+
+  /**
+   * Unique plants derived from the loaded turno catalog.
+   * Used for the plant selector dropdown.
+   */
+  get plantasDisponibles(): { label: string; value: number }[] {
+    const seen = new Map<number, string>();
+    for (const t of this.turnosData) {
+      if (t.idPlanta != null && t.nombrePlanta && !seen.has(t.idPlanta)) {
+        seen.set(t.idPlanta, t.nombrePlanta);
+      }
+    }
+    return Array.from(seen.entries()).map(([id, nombre]) => ({
+      label: nombre,
+      value: id
+    }));
+  }
+
+  /**
+   * Turnos filtered to the currently selected plant.
+   */
+  get turnosDisponibles(): { label: string; value: string }[] {
+    const filtrados = this.plantaSeleccionada
+      ? this.turnosData.filter(t => t.idPlanta === this.plantaSeleccionada)
+      : this.turnosData;
+    return filtrados.map(t => ({ label: t.nombre, value: t.nombre }));
   }
 
   constructor(
@@ -189,14 +231,6 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
     return parseInt(horaStr.split(':')[0], 10);
   }
 
-  private extraerHoraDeDateTime(dateTimeStr: string): number {
-    const timePart = dateTimeStr.includes('T')
-      ? dateTimeStr.split('T')[1]
-      : dateTimeStr.split(' ')[1];
-    if (!timePart) return 0;
-    return parseInt(timePart.split(':')[0], 10);
-  }
-
   private esTurnoNocturno(turno: CatTurnoDTO): boolean {
     return this.parseHora(turno.horaInicio) > this.parseHora(turno.horaFin);
   }
@@ -210,20 +244,34 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
     return fin - inicio;
   }
 
+  /**
+   * Calculates the shift start and end DateTimes for a given
+   * date + turno config, using the chronological definition:
+   *   "Turno X del día Y" starts at Y + horaInicio
+   *   and ends at Y + horaFin (or Y+1 if overnight).
+   */
+  private getShiftRange(fechaStr: string, turnoConfig: CatTurnoDTO): { start: Date; end: Date } {
+    const [year, month, day] = fechaStr.split('-').map(Number);
+    const horaInicio = this.parseHora(turnoConfig.horaInicio);
+    const horaFin = this.parseHora(turnoConfig.horaFin);
+    const nocturno = horaInicio > horaFin;
+
+    const start = new Date(year, month - 1, day, horaInicio, 0, 0);
+    const end = nocturno
+      ? new Date(year, month - 1, day + 1, horaFin, 0, 0)
+      : new Date(year, month - 1, day, horaFin, 0, 0);
+
+    return { start, end };
+  }
+
   // ── Load turnos from ECS API ──────────────────────────
 
   private cargarTurnos() {
     this.turnosEcsService.getTurnosActivos().subscribe({
       next: (response) => {
         if (response.statusCode === 200 && response.data) {
-          this.turnosData = response.data;
-          this.turnosDisponibles = this.turnosData.map(t => ({
-            label: t.nombre,
-            value: t.nombre
-          }));
-          this.detectarTurnoActual();
-          this.cargarRegistros();
-          this.iniciarVerificacionBloqueo();
+          this.todosLosTurnosEcs = response.data;
+          this.cargarTurnosDelUsuario();
         }
       },
       error: () => {
@@ -233,11 +281,60 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
     });
   }
 
+  private cargarTurnosDelUsuario() {
+    const user = this.authService.getUserData();
+    const correo = user?.email || user?.username;
+
+    if (!correo) {
+      this.turnosData = [...this.todosLosTurnosEcs];
+      this.inicializarVista();
+      return;
+    }
+
+    this.turnosEcsService.getTurnosDelUsuario(correo).subscribe({
+      next: (response) => {
+        if (response.statusCode === 200 && response.data && response.data.length > 0) {
+          this.turnoIdsDelUsuario = response.data.map((ut: any) => ut.idTurno);
+          this.turnosData = this.todosLosTurnosEcs.filter(t =>
+            this.turnoIdsDelUsuario.includes(t.idTurno)
+          );
+          this.sinTurnosAsignados = false;
+        } else {
+          this.sinTurnosAsignados = true;
+          this.turnosData = [];
+        }
+        this.inicializarVista();
+      },
+      error: () => {
+        this.sinTurnosAsignados = true;
+        this.turnosData = [];
+        this.inicializarVista();
+      }
+    });
+  }
+
+  private inicializarVista() {
+    this.detectarPlantaYTurnoActual();
+    this.cargarRegistros();
+    this.iniciarVerificacionBloqueo();
+  }
+
   // ── Shift detection ───────────────────────────────────
+
+  private detectarPlantaYTurnoActual() {
+    if (this.plantasDisponibles.length > 0) {
+      this.plantaSeleccionada = this.plantasDisponibles[0].value;
+    }
+    this.detectarTurnoActual();
+  }
 
   private detectarTurnoActual() {
     const hora = this.getHoraLocalMonterrey();
-    const turnoActual = this.turnosData.find(t => {
+    const turnosDePlanta = this.plantaSeleccionada
+      ? this.turnosData.filter(t => t.idPlanta === this.plantaSeleccionada)
+      : this.turnosData;
+
+    const turnoActual = turnosDePlanta.find(t => {
       const inicio = this.parseHora(t.horaInicio);
       const fin = this.parseHora(t.horaFin);
       if (inicio > fin) {
@@ -245,7 +342,7 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
       }
       return hora >= inicio && hora < fin;
     });
-    this.turnoSeleccionado = turnoActual?.nombre || (this.turnosData[0]?.nombre ?? '');
+    this.turnoSeleccionado = turnoActual?.nombre || (turnosDePlanta[0]?.nombre ?? '');
   }
 
   // ── Shift lock logic ──────────────────────────────────
@@ -256,19 +353,26 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Page-level lock: uses the LATEST possible shift end for the
-   * selected date+turno. For overnight shifts, the evening portion
-   * ends on date+1, so turnoBlockeado is only true when both the
-   * morning AND evening portions have expired.
+   * Page-level lock based on the selected date+turno shift end.
+   * With chronological turno definition, the shift end is unambiguous:
+   *   day shift  → same day at horaFin
+   *   night shift → next day at horaFin
    */
   private verificarBloqueo() {
-    const finTurno = this.obtenerFinDeTurnoPagina();
-    if (!finTurno) {
+    if (!this.aplicaBloqueoTemporal) {
       this.turnoBlockeado = false;
       this.tiempoRestante = '';
       return;
     }
 
+    const turnoConfig = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
+    if (!turnoConfig || !this.fechaSeleccionada) {
+      this.turnoBlockeado = false;
+      this.tiempoRestante = '';
+      return;
+    }
+
+    const { end: finTurno } = this.getShiftRange(this.fechaSeleccionada, turnoConfig);
     const ahora = this.getNowMonterrey();
     const limiteEdicion = new Date(finTurno.getTime() + 30 * 60 * 1000);
 
@@ -287,53 +391,20 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
     }
   }
 
-  private obtenerFinDeTurnoPagina(): Date | null {
-    const turnoConfig = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
-    if (!turnoConfig || !this.fechaSeleccionada) return null;
-
-    const horaFin = this.parseHora(turnoConfig.horaFin);
-    const [year, month, day] = this.fechaSeleccionada.split('-').map(Number);
-
-    if (this.esTurnoNocturno(turnoConfig)) {
-      return new Date(year, month - 1, day + 1, horaFin, 0, 0);
-    }
-    return new Date(year, month - 1, day, horaFin, 0, 0);
-  }
-
   /**
-   * Per-record lock: for overnight shifts, determines whether the
-   * record belongs to the early-morning portion (shift ended same day)
-   * or the evening portion (shift ends next day). This correctly locks
-   * early-morning records even when the evening portion is still active.
+   * Per-record lock check. Uses the record's horaInicio to determine
+   * which shift instance it belongs to, then checks the 30-min window.
    */
   isRegistroEditable(registro: EvtRegistroParosJustificadoDTO): boolean {
+    if (!this.aplicaBloqueoTemporal) return true;
     if (!this.turnosData.length) return true;
 
-    const turnoConfig = this.turnosData.find(t => t.nombre === registro.turno);
-    if (!turnoConfig) return true;
+    const turnoConfig = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
+    if (!turnoConfig || !this.fechaSeleccionada) return true;
 
-    const horaInicioTurno = this.parseHora(turnoConfig.horaInicio);
-    const horaFinTurno = this.parseHora(turnoConfig.horaFin);
-    const nocturno = horaInicioTurno > horaFinTurno;
-
-    const fechaStr = String(registro.fechaRegistro);
-    const [year, month, day] = fechaStr.split('-').map(Number);
-
-    let finDeTurno: Date;
-
-    if (nocturno && registro.horaInicio) {
-      const horaRegistro = this.extraerHoraDeDateTime(String(registro.horaInicio));
-      if (horaRegistro >= horaInicioTurno) {
-        finDeTurno = new Date(year, month - 1, day + 1, horaFinTurno, 0, 0);
-      } else {
-        finDeTurno = new Date(year, month - 1, day, horaFinTurno, 0, 0);
-      }
-    } else {
-      finDeTurno = new Date(year, month - 1, day, horaFinTurno, 0, 0);
-    }
-
+    const { end: finTurno } = this.getShiftRange(this.fechaSeleccionada, turnoConfig);
     const ahora = this.getNowMonterrey();
-    const limiteEdicion = new Date(finDeTurno.getTime() + 30 * 60 * 1000);
+    const limiteEdicion = new Date(finTurno.getTime() + 30 * 60 * 1000);
 
     return ahora <= limiteEdicion;
   }
@@ -393,16 +464,44 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
 
   // ── Filtering ──────────────────────────────────────────
 
+  /**
+   * Filters records using a chronological time-range approach:
+   *   "Turno X del día Y" → records whose horaInicio falls within
+   *   [Y horaInicio, Y(+1) horaFin), also matching the selected plant.
+   */
   filtrarRegistros() {
+    const turnoConfig = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
+
+    if (!turnoConfig || !this.fechaSeleccionada) {
+      this.registrosFiltrados = this.todosLosRegistros.filter(r => {
+        const matchPlanta = !this.plantaSeleccionada || r.idPlanta === this.plantaSeleccionada;
+        const matchFecha = r.fechaRegistro === this.fechaSeleccionada;
+        return matchPlanta && matchFecha;
+      });
+      this.calcularResumen();
+      return;
+    }
+
+    const { start: shiftStart, end: shiftEnd } = this.getShiftRange(this.fechaSeleccionada, turnoConfig);
+
     this.registrosFiltrados = this.todosLosRegistros.filter(r => {
-      const matchFecha = r.fechaRegistro === this.fechaSeleccionada;
-      const matchTurno = !this.turnoSeleccionado || r.turno === this.turnoSeleccionado;
-      return matchFecha && matchTurno;
+      if (this.plantaSeleccionada && r.idPlanta !== this.plantaSeleccionada) return false;
+      if (!r.horaInicio) return false;
+
+      const recordStart = new Date(r.horaInicio);
+      return recordStart >= shiftStart && recordStart < shiftEnd;
     });
+
     this.calcularResumen();
   }
 
   onCambioFiltro() {
+    this.filtrarRegistros();
+    this.verificarBloqueo();
+  }
+
+  onCambioPlanta() {
+    this.detectarTurnoActual();
     this.filtrarRegistros();
     this.verificarBloqueo();
   }

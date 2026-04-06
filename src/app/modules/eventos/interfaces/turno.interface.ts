@@ -5,4 +5,6 @@ export interface CatTurnoDTO {
   horaFin: string;
   descripcion?: string;
   estaActivo?: boolean;
+  idPlanta?: number;
+  nombrePlanta?: string;
 }
