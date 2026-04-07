@@ -102,6 +102,19 @@
         <span class="resumen-titulo">Horas injustificadas</span>
         <span class="resumen-valor">{{ horasInjustificadas | number:'1.2-2' }}</span>
       </div>
+      @if (resumenPorLinea.length > 0) {
+        <div class="resumen-card-lineas">
+          <span class="resumen-card-titulo">Horas en paro por línea</span>
+          <div class="resumen-lineas-lista">
+            @for (rl of resumenPorLinea; track rl.linea) {
+              <div class="resumen-linea-item">
+                <span class="resumen-linea-nombre">{{ rl.linea }}</span>
+                <span class="resumen-linea-valor">{{ rl.horas | number:'1.2-2' }} hrs</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
     </div>
   </div>
 

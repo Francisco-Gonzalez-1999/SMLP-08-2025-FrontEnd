@@ -79,6 +79,7 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
 
   horasJustificadas: number = 0;
   horasInjustificadas: number = 0;
+  resumenPorLinea: { linea: string; horas: number }[] = [];
 
   turnoBlockeado: boolean = false;
   tiempoRestante: string = '';
@@ -509,14 +510,22 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
   // ── Summary ───────────────────────────────────────────
 
   private calcularResumen() {
-    const totalMinutos = this.registrosFiltrados
-      .filter(r => r.duracionMinutos != null && r.estaActivo)
-      .reduce((sum, r) => sum + (r.duracionMinutos || 0), 0);
+    const activos = this.registrosFiltrados.filter(r => r.duracionMinutos != null && r.estaActivo);
+    const totalMinutos = activos.reduce((sum, r) => sum + (r.duracionMinutos || 0), 0);
 
     const turnoConfig = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
     const duracionTurno = turnoConfig ? this.getDuracionTurnoHoras(turnoConfig) : 12;
     this.horasJustificadas = Math.round((totalMinutos / 60) * 100) / 100;
     this.horasInjustificadas = Math.max(0, Math.round((duracionTurno - this.horasJustificadas) * 100) / 100);
+
+    const mapLineas = new Map<string, number>();
+    for (const r of activos) {
+      const nombre = r.lineaNombre || `Línea ${r.idLinea}`;
+      mapLineas.set(nombre, (mapLineas.get(nombre) || 0) + (r.duracionMinutos || 0));
+    }
+    this.resumenPorLinea = Array.from(mapLineas.entries())
+      .map(([linea, min]) => ({ linea, horas: Math.round((min / 60) * 100) / 100 }))
+      .sort((a, b) => b.horas - a.horas);
   }
 
   // ── Edit dialog ────────────────────────────────────────
