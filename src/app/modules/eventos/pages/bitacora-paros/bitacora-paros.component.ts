@@ -79,7 +79,16 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
 
   horasJustificadas: number = 0;
   horasInjustificadas: number = 0;
-  resumenPorLinea: { linea: string; horas: number }[] = [];
+  resumenPorLinea: {
+    linea: string;
+    horas: number;
+    horasJustificadas: number;
+    horasInjustificadas: number;
+    /** Duración del turno − paro de la línea (~horas no en paro en la ventana del turno). */
+    turnoEfectivoHoras: number;
+  }[] = [];
+  /** Duración del turno seleccionado (config ECS; por defecto 12 h), referencia para la columna por línea. */
+  duracionTurnoHorasResumen: number = 12;
 
   turnoBlockeado: boolean = false;
   tiempoRestante: string = '';
@@ -509,22 +518,56 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
 
   // ── Summary ───────────────────────────────────────────
 
+  /** Paro con al menos causa raíz o subcausa informada (texto no vacío). */
+  private tieneCausaRaizOSubcausa(r: EvtRegistroParosJustificadoDTO): boolean {
+    const causa = (r.causaRaiz ?? '').trim();
+    const sub = (r.subCausa ?? '').trim();
+    return causa.length > 0 || sub.length > 0;
+  }
+
   private calcularResumen() {
     const activos = this.registrosFiltrados.filter(r => r.duracionMinutos != null && r.estaActivo);
-    const totalMinutos = activos.reduce((sum, r) => sum + (r.duracionMinutos || 0), 0);
 
-    const turnoConfig = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
-    const duracionTurno = turnoConfig ? this.getDuracionTurnoHoras(turnoConfig) : 12;
-    this.horasJustificadas = Math.round((totalMinutos / 60) * 100) / 100;
-    this.horasInjustificadas = Math.max(0, Math.round((duracionTurno - this.horasJustificadas) * 100) / 100);
+    const minutosJustificados = activos
+      .filter(r => this.tieneCausaRaizOSubcausa(r))
+      .reduce((sum, r) => sum + (r.duracionMinutos || 0), 0);
+    const minutosInjustificados = activos
+      .filter(r => !this.tieneCausaRaizOSubcausa(r))
+      .reduce((sum, r) => sum + (r.duracionMinutos || 0), 0);
 
-    const mapLineas = new Map<string, number>();
+    this.horasJustificadas = Math.round((minutosJustificados / 60) * 100) / 100;
+    this.horasInjustificadas = Math.round((minutosInjustificados / 60) * 100) / 100;
+
+    const turnoCfg = this.turnosData.find(t => t.nombre === this.turnoSeleccionado);
+    this.duracionTurnoHorasResumen = turnoCfg ? this.getDuracionTurnoHoras(turnoCfg) : 12;
+
+    type LineaAgg = { minTotal: number; minJust: number; minInjust: number };
+    const mapLineas = new Map<string, LineaAgg>();
     for (const r of activos) {
       const nombre = r.lineaNombre || `Línea ${r.idLinea}`;
-      mapLineas.set(nombre, (mapLineas.get(nombre) || 0) + (r.duracionMinutos || 0));
+      const m = r.duracionMinutos || 0;
+      const prev = mapLineas.get(nombre) ?? { minTotal: 0, minJust: 0, minInjust: 0 };
+      prev.minTotal += m;
+      if (this.tieneCausaRaizOSubcausa(r)) {
+        prev.minJust += m;
+      } else {
+        prev.minInjust += m;
+      }
+      mapLineas.set(nombre, prev);
     }
+    const toH = (min: number) => Math.round((min / 60) * 100) / 100;
+    const durTurno = this.duracionTurnoHorasResumen;
     this.resumenPorLinea = Array.from(mapLineas.entries())
-      .map(([linea, min]) => ({ linea, horas: Math.round((min / 60) * 100) / 100 }))
+      .map(([linea, a]) => {
+        const horas = toH(a.minTotal);
+        return {
+          linea,
+          horas,
+          horasJustificadas: toH(a.minJust),
+          horasInjustificadas: toH(a.minInjust),
+          turnoEfectivoHoras: Math.round((durTurno - horas) * 100) / 100
+        };
+      })
       .sort((a, b) => b.horas - a.horas);
   }
 
@@ -736,7 +779,8 @@ export class BitacoraParosComponent implements OnInit, OnDestroy {
     const accion = nuevoEstado ? 'activar' : 'desactivar';
 
     this.confirmationService.confirm({
-      message: `¿Está seguro que desea ${accion} este registro?`,
+      //message: `¿Está seguro que desea ${accion} este registro?`,
+      message: `¿Está seguro que desea eliminar este registro?`,
       header: 'Confirmar acción',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí',

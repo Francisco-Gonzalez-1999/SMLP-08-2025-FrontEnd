@@ -154,19 +154,20 @@
 
       <div class="field col-12">
         <label for="comentarios" class="field-label">
-          <i class="pi pi-comment"></i>
-          Comentarios
+          <i class="pi pi-history"></i>
+          Trazabilidad del sistema
         </label>
+        <span class="field-hint-sistema">Solo lectura: eventos automáticos (cambio de turno, divisiones, registros del sistema).</span>
         <textarea
           id="comentarios"
           pInputTextarea
           [(ngModel)]="comentarios"
           name="comentarios"
           [rows]="4"
-          [disabled]="loading"
-          placeholder="Observaciones o comentarios adicionales..."
+          readonly
+          placeholder="Sin eventos registrados por el sistema."
           [autoResize]="false"
-          class="w-full comentarios-textarea"></textarea>
+          class="w-full comentarios-textarea comentarios-sistema-readonly"></textarea>
       </div>
     </div>
 

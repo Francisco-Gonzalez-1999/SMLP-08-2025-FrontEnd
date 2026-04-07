@@ -221,6 +221,21 @@
   min-height: 90px;
 }
 
+.field-hint-sistema {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin: -0.15rem 0 0.45rem;
+  line-height: 1.35;
+}
+
+.comentarios-sistema-readonly {
+  resize: none;
+  cursor: default;
+  background-color: #f1f5f9 !important;
+  color: #475569;
+}
+
 // Dropdown Estado del Paro - altura mínima y placeholder visible
 :host ::ng-deep .dropdown-estado-paro {
   &.p-dropdown,

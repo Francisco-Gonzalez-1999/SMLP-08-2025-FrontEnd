@@ -52,7 +52,7 @@ export class MenuComponent implements OnInit, OnDestroy {
           icon: 'pi pi-fw pi-calendar-plus',
           visible: p.tienePermisoEnModulo('MOD_BITACORA_PAROS'),
           items: [
-            { label: 'Paros Justificados', icon: 'pi pi-fw pi-book', routerLink: ['/eventos/paros-justificados'], visible: p.tienePermiso('MOD_BITACORA_PAROS', 'VER') },
+            // { label: 'Paros Justificados', icon: 'pi pi-fw pi-book', routerLink: ['/eventos/paros-justificados'], visible: p.tienePermiso('MOD_BITACORA_PAROS', 'VER') },
             { label: 'Bitácora de Paros', icon: 'pi pi-fw pi-clipboard', routerLink: ['/eventos/bitacora-paros'], visible: p.tienePermiso('MOD_BITACORA_PAROS', 'VER') }
           ]
         },

@@ -102,19 +102,6 @@
         <span class="resumen-titulo">Horas injustificadas</span>
         <span class="resumen-valor">{{ horasInjustificadas | number:'1.2-2' }}</span>
       </div>
-      @if (resumenPorLinea.length > 0) {
-        <div class="resumen-card-lineas">
-          <span class="resumen-card-titulo">Horas en paro por línea</span>
-          <div class="resumen-lineas-lista">
-            @for (rl of resumenPorLinea; track rl.linea) {
-              <div class="resumen-linea-item">
-                <span class="resumen-linea-nombre">{{ rl.linea }}</span>
-                <span class="resumen-linea-valor">{{ rl.horas | number:'1.2-2' }} hrs</span>
-              </div>
-            }
-          </div>
-        </div>
-      }
     </div>
   </div>
 
@@ -311,6 +298,7 @@
                 [showOperator]="false">
               </p-columnFilter>
             </th>
+            <th style="width: 180px">Acciones</th>
             <th pSortableColumn="usuarioUltimaMod" style="min-width: 120px">
               Usuario
               <p-sortIcon field="usuarioUltimaMod"></p-sortIcon>
@@ -333,7 +321,6 @@
                 </ng-template>
               </p-columnFilter>
             </th>
-            <th style="width: 180px">Acciones</th>
           </tr>
         </ng-template>
 
@@ -350,7 +337,6 @@
             <td><span class="descripcion-text">{{ registro.causaRaiz || '-' }}</span></td>
             <td><span class="descripcion-text">{{ registro.subCausa || '-' }}</span></td>
             <td><span class="descripcion-text">{{ registro.comentarios || '-' }}</span></td>
-            <td><span class="nombre-text">{{ registro.usuarioUltimaMod || registro.usuarioRegistra || '-' }}</span></td>
             <td>
               <div class="flex align-items-center gap-1">
                 @if (aplicaBloqueoTemporal && !isRegistroEditable(registro)) {
@@ -384,19 +370,17 @@
                   <button
                     pButton
                     pRipple
-                    [label]="registro.estaActivo ? 'Desactivar' : 'Activar'"
-                    [severity]="registro.estaActivo ? 'danger' : 'success'"
-                    [outlined]="true"
-                    size="small"
+                    [icon]="registro.estaActivo ? 'pi pi-trash' : 'pi pi-undo'"
+                    [class]="'p-button-rounded p-button-text ' + (registro.estaActivo ? 'p-button-danger' : 'p-button-success')"
                     (click)="cambiarEstado(registro)"
                     [disabled]="processing"
-                    pTooltip="{{ registro.estaActivo ? 'Click para desactivar' : 'Click para activar' }}"
-                    tooltipPosition="top"
-                    styleClass="p-button-sm">
+                    [pTooltip]="registro.estaActivo ? 'Eliminar registro' : 'Reactivar registro'"
+                    tooltipPosition="top">
                   </button>
                 }
               </div>
             </td>
+            <td><span class="nombre-text">{{ registro.usuarioUltimaMod || registro.usuarioRegistra || '-' }}</span></td>
           </tr>
         </ng-template>
 
@@ -411,6 +395,53 @@
           </tr>
         </ng-template>
       </p-table>
+
+      @if (resumenPorLinea.length > 0) {
+        <div class="resumen-por-linea-bloque">
+          <div class="resumen-por-linea-header">
+            <div class="resumen-por-linea-titulo-wrap">
+              <h4 class="resumen-por-linea-titulo">Resumen por línea</h4>
+              <p class="resumen-por-linea-subtitulo">
+                Paros por línea (just. / injust.) y <strong>turno efectivo</strong>: duración del turno
+                (<strong>{{ duracionTurnoHorasResumen | number:'1.2-2' }} h</strong>) menos el paro de esa misma línea.
+                Cada fila es independiente (no suma entre líneas).
+              </p>
+            </div>
+          </div>
+          <div class="resumen-por-linea-table-wrap">
+            <table class="resumen-por-linea-table">
+              <thead>
+                <tr>
+                  <th scope="col">Línea</th>
+                  <th scope="col" class="cell-num">Total paro</th>
+                  <th scope="col" class="cell-num cell-just">Justificadas</th>
+                  <th scope="col" class="cell-num cell-injust">Injustificadas</th>
+                  <th scope="col" class="cell-num"
+                    pTooltip="Duración del turno ({{ duracionTurnoHorasResumen | number:'1.2-2' }} h) menos las horas de paro de esta línea. Si el paro supera el turno, el valor puede ser negativo."
+                    tooltipPosition="top">
+                    Turno efectivo
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (rl of resumenPorLinea; track rl.linea) {
+                  <tr>
+                    <td class="cell-linea" [pTooltip]="rl.linea" tooltipPosition="top">{{ rl.linea }}</td>
+                    <td class="cell-num">{{ rl.horas | number:'1.2-2' }} h</td>
+                    <td class="cell-num cell-just">{{ rl.horasJustificadas | number:'1.2-2' }} h</td>
+                    <td class="cell-num cell-injust">{{ rl.horasInjustificadas | number:'1.2-2' }} h</td>
+                    <td class="cell-num cell-dif"
+                      [class.dif-neg]="rl.turnoEfectivoHoras < 0"
+                      [class.dif-pos]="rl.turnoEfectivoHoras >= 0">
+                      {{ rl.turnoEfectivoHoras | number:'1.2-2' }} h
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
     </div>
   }
 

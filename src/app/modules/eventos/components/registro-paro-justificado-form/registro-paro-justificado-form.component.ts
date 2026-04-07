@@ -121,7 +121,7 @@ export class RegistroParoJustificadoFormComponent implements OnInit, OnChanges {
       idRegistroParo: this.registro.idRegistroParo,
       causaRaiz: causaRaizTrim || null,
       subCausa: this.subCausa.trim() || null,
-      comentarios: this.comentarios.trim() || null,
+      comentarios: (this.registro.comentarios ?? '').trim() || null,
       idEstadoParo: idEstadoParoToSend,
       usuarioUltimaMod
     }).subscribe({
